@@ -1,0 +1,1578 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diários de uma Apotecária</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="amor-config.js"></script>
+<script>
+try{var t=localStorage.getItem('apo-theme');if(t==='clean'){t='light';localStorage.setItem('apo-theme',t)}if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}
+</script>
+<link href="amor.css" rel="stylesheet">
+</head>
+<body>
+<div class="petals" aria-hidden="true"></div>
+<header class="top">
+  <div class="top-in">
+    <button class="brand" data-act="home" aria-label="Voltar ao armário"><span class="seal" lang="ja">薬</span><span class="brand-t">Diários de uma Apotecária</span></button>
+    <label class="search"><span class="sr">Buscar gavetas, itens ou extensões</span><span data-icon="search"></span><input id="q" type="search" placeholder="Buscar gaveta, item ou extensão…" autocomplete="off"></label>
+    <button class="btn btn-primary hide-sm" data-act="add"><span data-icon="plus"></span>Guardar</button>
+    <button class="icon-btn" id="btnTheme" data-act="theme" aria-label="Alternar tema"></button>
+    <button class="icon-btn" data-act="settings" aria-label="Ajustes e backup"><span data-icon="gear"></span></button>
+  </div>
+</header>
+
+<main id="app" tabindex="-1">
+  <div class="loading"><svg class="mortar" viewBox="0 0 120 130" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 70h80c0 30-20 42-40 42S20 100 20 70Z"/><path d="M44 112h32v10H44z"/><path d="M14 70h92"/><path d="M72 62 98 14" stroke-width="10"/></svg><p>Abrindo o armário…</p></div>
+</main>
+
+<button class="fab" data-act="add" aria-label="Guardar algo"><span data-icon="plus" data-size="26"></span></button>
+
+<!-- Guardar / editar -->
+<dialog id="dlgForm" aria-labelledby="fHead">
+  <div class="dlg-bar"><h2 id="fHead">Guardar na gaveta</h2><button class="icon-btn" data-act="f-close" aria-label="Fechar"><span data-icon="x"></span></button></div>
+  <div class="dlg-body">
+    <div class="field type-field"><span>O que deseja guardar?</span><div class="tabs" id="fTabs" role="tablist" aria-label="Tipo de item"></div><p id="fTypeLock" class="muted small" hidden></p></div>
+
+    <div class="pane" data-pane="image">
+      <div id="imgAdd">
+        <label class="drop" id="dropImg"><input class="sr" type="file" id="fImgs" accept="image/*" multiple><span data-icon="image" data-size="30"></span><strong>Adicionar imagens</strong><span class="muted small">Somente imagens (JPG, PNG, GIF, WebP e outros formatos de imagem). Até 40 MB cada.</span></label>
+      </div>
+      <div class="previews" id="prevImgs"></div>
+      <label class="field" id="capField"><span>Legenda (opcional)</span><input type="text" id="fCaption" maxlength="200"></label>
+    </div>
+
+    <div class="pane" data-pane="note">
+      <label class="field"><span>Título (opcional)</span><input type="text" id="fNoteTitle" maxlength="120"></label>
+      <label class="field"><span>Texto</span><textarea id="fNoteText" rows="9"></textarea></label>
+    </div>
+
+    <div class="pane" data-pane="list">
+      <label class="field"><span>Título (opcional)</span><input type="text" id="fListTitle" maxlength="120"></label>
+      <label class="field"><span>Itens, um por linha</span><textarea id="fListText" rows="8" placeholder="Camomila&#10;Gengibre&#10;Mel"></textarea></label>
+    </div>
+
+    <div class="pane" data-pane="link">
+      <label class="field"><span>Endereço do link</span><input type="url" id="fUrl" placeholder="https://" inputmode="url" autocapitalize="off"></label>
+      <label class="field"><span>Título (opcional)</span><input type="text" id="fLinkTitle" maxlength="120"></label>
+      <label class="field"><span>Nota (opcional)</span><textarea id="fLinkNote" rows="3"></textarea></label>
+    </div>
+
+    <div class="pane" data-pane="file">
+      <div id="fileAdd">
+        <label class="drop" id="dropFile"><input class="sr" type="file" id="fFiles" accept="application/*,text/*,audio/*,video/*,.zip,.rar,.7z" multiple><span data-icon="file" data-size="30"></span><strong>Adicionar arquivos</strong><span class="muted small">Documentos, áudio e outros arquivos. Imagens ficam na opção Imagem. Até 40 MB cada.</span></label>
+      </div>
+      <ul class="flist" id="prevFiles"></ul>
+      <label class="field" id="fileTitleField"><span>Nome</span><input type="text" id="fFileTitle" maxlength="160"></label>
+      <label class="field"><span>Nota (opcional)</span><textarea id="fFileNote" rows="3"></textarea></label>
+    </div>
+
+    <label class="field"><span>Gaveta</span><select id="fDrawer"></select></label>
+    <p id="fDrawerHint" class="muted small" role="status" hidden></p>
+    <p id="fErr" class="err" role="alert" hidden></p>
+  </div>
+  <div class="dlg-foot"><button class="btn" data-act="f-close">Cancelar</button><button class="btn btn-primary" id="fSave" data-act="f-save">Guardar</button></div>
+</dialog>
+
+<!-- Visualizar -->
+<dialog id="dlgView" aria-label="Item guardado"></dialog>
+
+<!-- Gaveta -->
+<dialog id="dlgDrawer" aria-labelledby="dHead">
+  <div class="dlg-bar"><h2 id="dHead">Nova gaveta</h2><button class="icon-btn" data-act="d-close" aria-label="Fechar"><span data-icon="x"></span></button></div>
+  <div class="dlg-body">
+    <label class="field"><span>Nome da gaveta</span><input type="text" id="dName" maxlength="40" placeholder="Ex.: Receitas, Fanarts, Ideias"></label>
+    <label class="field" id="dTypeField"><span>O que esta gaveta vai guardar?</span><select id="dType" required>
+      <option value="" disabled selected>Selecione um tipo</option>
+      <option value="all" disabled>Todos os tipos (gaveta antiga)</option>
+      <option value="image">Somente imagens</option>
+      <option value="note">Somente anotações</option>
+      <option value="list">Somente listas</option>
+      <option value="link">Somente links</option>
+      <option value="file">Somente arquivos</option>
+    </select><small id="dTypeHelp" class="muted">Gavetas antigas continuam livres. Escolha um tipo para separar os novos itens.</small></label>
+    <div class="field"><span>Etiqueta de erva na gaveta</span><div class="herbs" id="herbs"></div></div>
+    <p id="dErr" class="err" role="alert" hidden></p>
+  </div>
+  <div class="dlg-foot"><button class="btn btn-danger left" id="dDel" data-act="d-del">Excluir gaveta</button><button class="btn" data-act="d-close">Cancelar</button><button class="btn btn-primary" id="dSave" data-act="d-save">Criar gaveta</button></div>
+</dialog>
+
+<!-- Ajustes -->
+<dialog id="dlgSettings" aria-labelledby="sHead">
+  <div class="dlg-bar"><h2 id="sHead">Ajustes</h2><button class="icon-btn" data-act="s-close" aria-label="Fechar"><span data-icon="x"></span></button></div>
+  <div class="dlg-body">
+    <div class="field"><span>Seu nome</span><div class="row"><input type="text" id="sName" maxlength="40" aria-label="Seu nome"><button class="btn" data-act="s-name">Salvar nome</button></div></div>
+    <div class="field">
+      <span>Sincronização na nuvem</span>
+      <p id="cloudStatus" class="muted small" role="status"></p>
+      <div id="cloudAuth">
+        <label class="field"><span>E-mail da conta</span><input type="email" id="cloudEmail" autocomplete="email" inputmode="email"></label>
+        <label class="field"><span>Senha</span><input type="password" id="cloudPassword" autocomplete="current-password"></label>
+        <div class="row" id="cloudAuthActions">
+          <button class="btn btn-primary" data-act="cloud-signin">Entrar</button>
+          <button class="btn" data-act="cloud-signup">Criar conta</button>
+        </div>
+        <div class="row" id="cloudAccountActions" hidden>
+          <button class="btn" data-act="cloud-sync">Sincronizar agora</button>
+          <button class="btn" data-act="cloud-signout">Sair da conta</button>
+          <button class="btn btn-primary" data-act="cloud-migrate">Copiar dados deste aparelho para a conta</button>
+        </div>
+      </div>
+    </div>
+    <div class="field"><span>Armazenamento</span>
+      <p id="sStorageStatus" class="muted small" role="status"></p>
+      <div class="row"><button class="btn" data-act="s-persist">Proteger dados salvos</button></div>
+    </div>
+    <div class="field"><span>Backup</span>
+      <p class="muted small">Seus dados ficam neste navegador. Para guardar uma cópia ou passar seus dados para outro aparelho, baixe o arquivo de backup. Para recuperar uma cópia, escolha o arquivo que você baixou.</p>
+      <div class="row"><button class="btn" data-act="s-export"><span data-icon="dl"></span>Baixar cópia dos meus dados</button><label class="btn"><input class="sr" type="file" id="sImport" accept=".json,application/json">Carregar uma cópia salva</label></div>
+      <p id="sUsage" class="muted small"></p>
+    </div>
+    <div class="field"><span>Começar do zero</span><div class="row"><button class="btn btn-danger" data-act="s-wipe"><span data-icon="trash"></span>Apagar tudo</button></div></div>
+  </div>
+</dialog>
+
+<!-- Boas-vindas -->
+<dialog id="dlgWelcome" aria-labelledby="wHead">
+  <div class="dlg-bar"><span class="seal" lang="ja">薬</span><h2 id="wHead">Bem-vinda ao armário</h2></div>
+  <div class="dlg-body">
+    <p style="margin-bottom:16px">Aqui cada gaveta guarda um pedacinho do seu mundo. Antes de abrir, como podemos te chamar?</p>
+    <label class="field"><span>Seu nome</span><input type="text" id="wName" maxlength="40" autocomplete="given-name"></label>
+  </div>
+  <div class="dlg-foot"><button class="btn" data-act="w-skip">Agora não</button><button class="btn btn-primary" data-act="w-ok">Entrar no armário</button></div>
+</dialog>
+
+<!-- Confirmar -->
+<dialog id="dlgConfirm" aria-labelledby="cTitle" style="width:min(460px,calc(100vw - 24px))">
+  <div class="dlg-bar"><h2 id="cTitle"></h2></div>
+  <div class="dlg-body"><p id="cMsg"></p></div>
+  <div class="dlg-foot"><button class="btn" data-act="c-no">Cancelar</button><button class="btn btn-danger" id="cYes" data-act="c-yes">Excluir</button></div>
+</dialog>
+
+<div class="dropveil" id="veil" aria-hidden="true">Solte aqui para guardar</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(()=>{
+'use strict';
+
+/* ---------- utilidades ---------- */
+const $=(s,el=document)=>el.querySelector(s);
+const $$=(s,el=document)=>[...el.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>window.crypto&&crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const fmtDate=ts=>new Intl.DateTimeFormat('pt-BR',{day:'numeric',month:'short',year:'numeric'}).format(new Date(ts));
+const fmtSize=b=>b<1024?b+' B':b<1048576?Math.round(b/1024)+' KB':(b/1048576).toFixed(1)+' MB';
+const plural=(n,s,p)=>n===1?'1 '+s:n+' '+p;
+const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+class UserErr extends Error{}
+
+const I={
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/>',
+ moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+ gear:'<path d="M19.14 12.94a7.5 7.5 0 0 0 0-1.88l2.03-1.58-2-3.46-2.42.97a7.5 7.5 0 0 0-1.63-.94L14.75 3h-4l-.37 3.05a7.5 7.5 0 0 0-1.63.94l-2.42-.97-2 3.46 2.03 1.58a7.5 7.5 0 0 0 0 1.88l-2.03 1.58 2 3.46 2.42-.97a7.5 7.5 0 0 0 1.63.94l.37 3.05h4l.37-3.05a7.5 7.5 0 0 0 1.63-.94l2.42.97 2-3.46z"/><circle cx="12.75" cy="12" r="3"/>',
+ back:'<path d="M15 5l-7 7 7 7"/>',
+ next:'<path d="M9 5l7 7-7 7"/>',
+ x:'<path d="M6 6l12 12M18 6 6 18"/>',
+ image:'<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-4.5 3.5 3L16 12l4 4"/>',
+ note:'<path d="M6 3.5h9l3.5 3.5v13.5H6z"/><path d="M9 11h6M9 14.5h6M9 18h3"/>',
+ list:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1.2 1.2L6.6 5M3.5 12l1.2 1.2L6.6 11M3.5 18l1.2 1.2L6.6 17"/>',
+ link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+ file:'<path d="M6 3.5h8l4.5 4.5v12.5H6z"/><path d="M14 3.5V8h4.5"/>',
+ trash:'<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>',
+ edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+ dl:'<path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/>',
+ ext:'<path d="M14 4h6v6M20 4l-9 9M18 14v5H5V6h5"/>',
+ stamp:'<path d="M9 4h6v6l3 3v2H6v-2l3-3zM5 19.5h14"/>'
+};
+const icon=(n,sz=20)=>'<svg class="ic" width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+I[n]+'</svg>';
+function hydrateIcons(root=document){$$('[data-icon]',root).forEach(el=>{el.outerHTML=icon(el.dataset.icon,+el.dataset.size||20)})}
+
+const TYPES={
+ image:{pt:'Imagem',pl:'Imagens',ic:'image'},
+ note:{pt:'Nota',pl:'Notas',ic:'note'},
+ list:{pt:'Lista',pl:'Listas',ic:'list'},
+ link:{pt:'Link',pl:'Links',ic:'link'},
+ file:{pt:'Arquivo',pl:'Arquivos',ic:'file'}
+};
+const drawerContentType=d=>d&&Object.prototype.hasOwnProperty.call(TYPES,d.contentType)?d.contentType:'all';
+const drawerTypeLabel=d=>{
+ const type=drawerContentType(d);
+ if(type==='all')return 'Todos os tipos';
+ if(type==='note')return 'Somente anotações';
+ return 'Somente '+TYPES[type].pl.toLowerCase();
+};
+const drawerAccepts=(d,type)=>drawerContentType(d)==='all'||drawerContentType(d)===type;
+function assertDrawerAccepts(drawerId,type){
+ const d=getDrawer(drawerId);
+ if(!d)throw new UserErr('Escolha uma gaveta.');
+ if(!drawerAccepts(d,type))throw new UserErr('Esta gaveta aceita '+drawerTypeLabel(d).replace(/^Somente /,'somente ')+'. Escolha uma gaveta compatível.');
+}
+const HERBS=[['当帰','Angélica-chinesa'],['甘草','Alcaçuz'],['薄荷','Hortelã'],['菊花','Crisântemo'],['人参','Ginseng'],['桂皮','Canela'],['茯苓','Poria'],['紅花','Cártamo'],['山椒','Sansho'],['生姜','Gengibre'],['枸杞','Goji'],['蓮','Lótus']];
+
+/* ---------- ilustrações (desenhadas à mão em SVG) ---------- */
+function sprig(){
+  let g='';
+  for(let i=0;i<5;i++){
+    const y=186-i*34,k=(1-i*.13).toFixed(2);
+    g+='<g transform="translate(60 '+y+') scale('+k+')"><path d="M0 0C-20-5-33-20-39-36C-18-33-4-21 0 0Z"/></g>';
+    g+='<g transform="translate(60 '+(y-17)+') scale('+k+')"><path d="M0 0C20-5 33-20 39-36C18-33 4-21 0 0Z"/></g>';
+  }
+  g+='<path d="M60 14C51 26 51 40 60 50C69 40 69 26 60 14Z"/>';
+  const berries='<path d="M60 128C72 130 80 138 82 150" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="82" cy="154" r="5" fill="var(--seal)"/><path d="M60 80C49 82 42 90 40 100" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="40" cy="104" r="4.5" fill="var(--seal)"/>';
+  return '<svg class="sprig" viewBox="0 0 120 210" aria-hidden="true"><path d="M60 206C57 150 64 95 60 10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><g fill="currentColor" opacity=".9">'+g+'</g>'+berries+'</svg>';
+}
+const mortar='<svg class="mortar" viewBox="0 0 120 130" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 70h80c0 30-20 42-40 42S20 100 20 70Z"/><path d="M44 112h32v10H44z"/><path d="M14 70h92"/><path d="M72 62 98 14" stroke-width="10"/><path d="M30 84c6 10 16 16 30 16" opacity=".5"/></svg>';
+
+/* ---------- armazenamento (IndexedDB, com plano B em memória) ---------- */
+const DBN='diario-apotecaria',STORES=['drawers','items','blobs','meta'];
+const CLOUD_TABLES={drawers:'apo_gavetas',items:'apo_itens'};
+const CLOUD_BUCKET='apo-arquivos';
+const cloudConfig=window.APO_SUPABASE_CONFIG||{};
+let cloud=null,cloudConfigError='';
+if(window.supabase&&cloudConfig.url&&cloudConfig.anonKey&&!/SEU-PROJETO|COLE_A_CHAVE/.test(cloudConfig.url+cloudConfig.anonKey)){
+  try{
+    const projectUrl=new URL(cloudConfig.url);
+    if(projectUrl.protocol!=='https:'&&projectUrl.hostname!=='localhost'&&projectUrl.hostname!=='127.0.0.1')throw new Error('A URL do Supabase precisa usar HTTPS.');
+    cloud=window.supabase.createClient(cloudConfig.url,cloudConfig.anonKey);
+  }catch(error){cloudConfigError=error.message||'Configuração Supabase inválida.'}
+}
+let idb=null;
+const mem={drawers:new Map(),items:new Map(),blobs:new Map(),meta:new Map()};
+let activeScope='local',cloudHydrating=false;
+function localKey(id,scope=activeScope){return scope+'::'+id}
+function localValue(value,scope=activeScope){
+  const prefix=scope+'::';
+  return value&&value.id.startsWith(prefix)?{...value,id:value.id.slice(prefix.length)}:value;
+}
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const t=setTimeout(()=>reject(new Error('timeout')),4000);
+    let req;
+    try{req=indexedDB.open(DBN,3)}catch(e){clearTimeout(t);return reject(e)}
+    req.onupgradeneeded=e=>{
+      STORES.forEach(s=>{if(!req.result.objectStoreNames.contains(s))req.result.createObjectStore(s,{keyPath:'id'})});
+      if(e.oldVersion<3){
+        STORES.forEach(name=>{
+          if(!req.result.objectStoreNames.contains(name))return;
+          const objectStore=req.transaction.objectStore(name);
+          const rows=objectStore.getAll();
+          rows.onsuccess=()=>{
+            for(const value of rows.result){
+              if(!String(value.id).includes('::')){
+                objectStore.delete(value.id);
+                objectStore.put({...value,id:'local::'+value.id});
+              }
+            }
+          };
+        });
+      }
+    };
+    req.onsuccess=()=>{clearTimeout(t);req.result.onversionchange=()=>req.result.close();resolve(req.result)};
+    req.onerror=()=>{clearTimeout(t);reject(req.error)};
+    req.onblocked=()=>{clearTimeout(t);reject(new Error('blocked'))};
+  });
+}
+const idbReq=r=>new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const idbTx=(n,fn)=>new Promise((res,rej)=>{const tx=idb.transaction(n,'readwrite');fn(tx.objectStore(n));tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error||new Error('abort'))});
+function storageFailure(error){
+  console.error(error);
+  if(S.user)S.cloudPending=true;
+  S.cloudError=error&&error.message?error.message:'Falha ao salvar os dados.';
+  if(S.user)updateCloudStatus();
+  toast(S.user?'Alteração salva neste aparelho, mas não sincronizada. Use “Sincronizar agora” quando a conexão voltar.':'Não foi possível salvar os dados neste navegador.');
+}
+const store={
+  async all(n,scope=activeScope){
+    const prefix=scope+'::',rows=idb?await idbReq(idb.transaction(n).objectStore(n).getAll()):[...mem[n].values()];
+    return rows.filter(v=>v.id.startsWith(prefix)).map(v=>localValue(v,scope));
+  },
+  async get(n,id,scope=activeScope){
+    const key=localKey(id,scope),value=idb?await idbReq(idb.transaction(n).objectStore(n).get(key)):mem[n].get(key);
+    return value?localValue(value,scope):value;
+  },
+  async cache(n,v,scope=activeScope){
+    const value={...v,id:localKey(v.id,scope)};
+    if(idb)await idbTx(n,s=>s.put(value));else mem[n].set(value.id,value);
+  },
+  async put(n,v){
+    const value={...v,id:localKey(v.id)};
+    if(idb)await idbTx(n,s=>s.put(value));else mem[n].set(value.id,value);
+    if(cloud&&S.user&&!cloudHydrating){
+      try{await syncCloudRecord(n,v)}catch(error){
+        await queueCloudOperation({kind:'sync'});
+        storageFailure(error);
+      }
+    }
+  },
+  async del(n,id){
+    const key=localKey(id);
+    if(idb)await idbTx(n,s=>s.delete(key));else mem[n].delete(key);
+    if(cloud&&S.user&&!cloudHydrating){
+      try{await deleteCloudRecord(n,id)}catch(error){
+        await queueCloudOperation({kind:'delete',store:n,id});
+        storageFailure(error);
+      }
+    }
+  },
+  async clear(n,scope=activeScope){
+    const rows=await this.all(n,scope);
+    for(const value of rows){
+      const key=localKey(value.id,scope);
+      if(idb)await idbTx(n,s=>s.delete(key));else mem[n].delete(key);
+    }
+    if(cloud&&S.user&&scope===activeScope&&!cloudHydrating){
+      try{await clearCloudRecords(n,rows)}catch(error){
+        await queueCloudOperation({kind:'clear',store:n});
+        storageFailure(error);
+      }
+    }
+  }
+};
+async function setMeta(id,v){
+  try{await store.put('meta',{id,v})}catch(error){storageFailure(error)}
+}
+
+/* ---------- estado ---------- */
+const S={drawers:[],items:[],name:'',theme:'auto',view:{k:'home'},filter:'all',q:'',persistent:true,storagePersistent:null,storageProtectionRequested:false,user:null,cloudError:'',cloudPending:false};
+const getDrawer=id=>S.drawers.find(d=>d.id===id);
+const getItem=id=>S.items.find(i=>i.id===id);
+const byNew=(a,b)=>b.created-a.created;
+const currentDrawerId=()=>S.view.k==='drawer'?S.view.id:null;
+let homeEntered=false;
+const romanticLines=[
+  'O meu lugar favorito sempre será ao seu lado.',
+  'Em cada detalhe seu, encontro um motivo para sorrir.',
+  'Que o nosso carinho floresça até nos dias mais comuns.',
+  'Seu abraço transforma qualquer lugar em lar.',
+  'Se eu pudesse escolher de novo, ainda escolheria você.',
+  'Há amor até no silêncio confortável que dividimos.',
+  'Meu coração reconhece o caminho de volta para você.',
+  'Entre tantos caminhos, gosto mais daquele que fazemos juntos.',
+  'Você faz meu mundo caber dentro de um sorriso.',
+  'Amar você é encontrar calma mesmo quando tudo corre depressa.',
+  'Seu jeito deixa mais bonito até o dia mais simples.',
+  'Com você, até a rotina ganha um brilho especial.',
+  'Meu carinho por você cresce em cada pequeno cuidado.',
+  'Seu nome mora nos pensamentos que me fazem bem.',
+  'A vida fica mais leve quando caminhamos lado a lado.',
+  'Você é meu acaso favorito e minha escolha de todos os dias.',
+  'No mapa do meu coração, todos os caminhos levam a você.',
+  'Seu sorriso é uma das minhas paisagens preferidas.',
+  'Gosto de quem sou quando estou perto de você.',
+  'O melhor plano ainda é dividir a vida com você.',
+  'Seu carinho é abrigo nos dias de chuva e festa nos dias de sol.',
+  'Em qualquer lugar, estar com você é estar em casa.',
+  'Você transforma momentos pequenos em lembranças enormes.',
+  'Meu coração fica mais tranquilo quando encontra o seu.',
+  'Entre todas as palavras, ainda escolho dizer: amo você.',
+  'Seu olhar faz o tempo desacelerar por um instante.',
+  'A cada conversa, descubro um novo motivo para gostar de você.',
+  'Você é a parte bonita que aparece mesmo nos dias difíceis.',
+  'Quero colecionar muitos amanhãs ao seu lado.',
+  'O amor se parece com você: gentil, único e cheio de luz.',
+  'Seu abraço é pausa boa no meio da correria.',
+  'Há um pedacinho de felicidade em cada momento que vivemos juntos.',
+  'Você faz meu coração sorrir antes mesmo de eu perceber.',
+  'A melhor distância entre dois corações é um abraço seu.',
+  'Quando penso em carinho, é o seu jeito que me vem à memória.',
+  'Meu dia melhora só de saber que você existe.',
+  'Você é poesia escrita nos detalhes mais simples.',
+  'Que nunca nos falte tempo para rir um com o outro.',
+  'Seu cuidado faz florescer o melhor que existe em mim.',
+  'Eu escolheria mil vezes a paz de estar com você.',
+  'Seu amor colore os espaços que eu nem sabia que estavam vazios.',
+  'Meu coração encontrou em você uma canção que quer repetir.',
+  'Mesmo sem dizer nada, você sabe deixar tudo mais bonito.',
+  'Com você, cada despedida já guarda a alegria do reencontro.',
+  'Quero ser motivo de sorriso no seu dia, assim como você é no meu.',
+  'Seu jeito de existir já é um presente para quem te ama.',
+  'O amor não precisa ser perfeito; basta ser nosso e verdadeiro.',
+  'Você faz o futuro parecer um lugar acolhedor.',
+  'Em cada lembrança feliz, encontro um pouco de nós.',
+  'Seu carinho é uma luz mansa que me acompanha.'
+];
+let romanticLineIndex=-1;
+try{
+  const previous=Number(localStorage.getItem('apo-romantic-line'));
+  const choices=romanticLines.map((_,i)=>i).filter(i=>i!==previous);
+  romanticLineIndex=choices[Math.floor(Math.random()*choices.length)];
+  localStorage.setItem('apo-romantic-line',String(romanticLineIndex));
+}catch(e){romanticLineIndex=Math.floor(Math.random()*romanticLines.length)}
+const romanticLine=romanticLines[romanticLineIndex];
+
+const urls=new Map();
+function thumbURL(it){
+  const k=it.id+':t';
+  if(!urls.has(k)&&it.thumb)urls.set(k,URL.createObjectURL(it.thumb));
+  return urls.get(k)||'';
+}
+function dropURLs(id){for(const k of [...urls.keys()])if(k.startsWith(id+':')){URL.revokeObjectURL(urls.get(k));urls.delete(k)}}
+async function getItemBlob(id){
+  const local=await store.get('blobs',id);
+  if(local)return local;
+  if(!cloud||!S.user)return null;
+  const {data,error}=await cloud.storage.from(CLOUD_BUCKET).download(S.user.id+'/'+id);
+  if(error)throw error;
+  await store.cache('blobs',{id,blob:data});
+  return {id,blob:data};
+}
+
+async function seed(){
+  const names=['Imagens queridas','Diário','Receitas e ideias','Links e achados'];
+  const ds=names.map((name,i)=>({id:uid(),name,herb:i,order:i,created:Date.now()}));
+  for(const d of ds)await store.put('drawers',d);
+  S.drawers=ds;
+  const note={id:uid(),type:'note',drawer:ds[1].id,title:'Bem-vinda ao seu armário',
+    text:'Este espaço foi feito com carinho para você guardar o que quiser: imagens, anotações, listas, links e arquivos.\n\nCada gaveta é uma coleção. Abra uma, toque em “Guardar aqui” e coloque algo dentro. Você também pode criar novas gavetas e dar o nome que fizer sentido.\n\nSeus itens ficam salvos neste aparelho. Em Ajustes, você baixa um backup quando quiser.\n\nQuando quiser, é só apagar esta nota.',
+    fav:true,created:Date.now(),updated:Date.now()};
+  await store.put('items',note);
+  S.items=[note];
+  await setMeta('seeded',true);
+}
+
+async function loadScope(scope=activeScope){
+  activeScope=scope;
+  S.drawers=(await store.all('drawers')).sort((a,b)=>a.order-b.order);
+  S.items=await store.all('items');
+  S.name=(await store.get('meta','name'))?.v||'';
+}
+async function repairDuplicateSeedDrawers(){
+  const defaults=['Imagens queridas','Diário','Receitas e ideias','Links e achados'];
+  const signatures=defaults.map((name,order)=>JSON.stringify([name,order,order]));
+  const groups=new Map(signatures.map(key=>[key,S.drawers.filter(drawer=>
+    signatures.includes(JSON.stringify([drawer.name,drawer.order,drawer.herb]))
+    &&JSON.stringify([drawer.name,drawer.order,drawer.herb])===key
+  )]));
+  if([...groups.values()].some(group=>group.length<2))return;
+  const counts=new Map();
+  for(const item of S.items)counts.set(item.drawer,(counts.get(item.drawer)||0)+1);
+  const replacements=new Map();
+  for(const group of groups.values()){
+    group.sort((a,b)=>(counts.get(b.id)||0)-(counts.get(a.id)||0)||a.created-b.created);
+    for(const duplicate of group.slice(1))replacements.set(duplicate.id,group[0].id);
+  }
+  if(!replacements.size)return;
+  for(const item of S.items){
+    if(!replacements.has(item.drawer))continue;
+    item.drawer=replacements.get(item.drawer);
+    await store.put('items',item);
+  }
+  for(const id of replacements.keys())await store.del('drawers',id);
+  S.drawers=S.drawers.filter(drawer=>!replacements.has(drawer.id));
+}
+async function load(){
+  try{idb=await openDB()}catch(e){idb=null;S.persistent=false}
+  try{
+    await loadScope('local');
+    await repairDuplicateSeedDrawers();
+    const savedTheme=(await store.get('meta','theme'))?.v||localStorage.getItem('apo-theme')||'auto';
+    S.theme=savedTheme==='clean'?'light':savedTheme;
+    if(savedTheme==='clean'){
+      await setMeta('theme','light');
+      document.documentElement.setAttribute('data-theme','light');
+    }
+    const seeded=(await store.get('meta','seeded'))?.v;
+    if(!seeded&&!S.drawers.length)await seed();
+  }catch(e){
+    console.error(e);
+    idb=null;S.persistent=false;
+    if(!S.drawers.length){try{await seed()}catch(_){}}
+  }
+  try{if(idb&&navigator.storage&&navigator.storage.persisted)S.storagePersistent=await navigator.storage.persisted()}catch(e){console.error(e)}
+}
+
+async function addItem(base,blob){
+  assertDrawerAccepts(base.drawer,base.type);
+  const it={id:uid(),created:Date.now(),updated:Date.now(),fav:false,...base};
+  if(blob)await store.put('blobs',{id:it.id,blob});
+  await store.put('items',it);
+  S.items.push(it);
+  return it;
+}
+async function saveItem(it){it.updated=Date.now();await store.put('items',it)}
+async function removeItem(id){
+  await store.del('items',id);await store.del('blobs',id);
+  S.items=S.items.filter(i=>i.id!==id);dropURLs(id);
+}
+
+/* ---------- imagens ---------- */
+function loadImg(file){
+  return new Promise((res,rej)=>{
+    const u=URL.createObjectURL(file),im=new Image();
+    im.onload=()=>res({im,u});
+    im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('img'))};
+    im.src=u;
+  });
+}
+const toBlob=(c,type,q)=>new Promise(r=>c.toBlob(r,type,q));
+async function processImage(file){
+  const {im,u}=await loadImg(file);
+  try{
+    const w=im.naturalWidth||im.width||800,h=im.naturalHeight||im.height||600;
+    const alpha=/png|webp|gif|svg/.test(file.type);
+    const outType=alpha?'image/webp':'image/jpeg';
+    const draw=max=>{
+      const s=Math.min(1,max/Math.max(w,h)),c=document.createElement('canvas');
+      c.width=Math.max(1,Math.round(w*s));c.height=Math.max(1,Math.round(h*s));
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c;
+    };
+    const thumb=await toBlob(draw(640),outType,.82);
+    let full;
+    if(file.type==='image/gif'||file.type==='image/svg+xml'||(file.size<=1.5*1048576&&Math.max(w,h)<=2400))full=file.slice(0,file.size,file.type);
+    else full=await toBlob(draw(2400),outType,.9);
+    if(!thumb||!full)throw new Error('canvas');
+    return {full,thumb,w,h};
+  }finally{URL.revokeObjectURL(u)}
+}
+const extOf=m=>({'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif','image/svg+xml':'svg'}[m]||'jpg');
+
+/* ---------- arquivos para baixar ---------- */
+async function saveFile(filename,blob){
+  let dl=null;
+  try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
+  if(dl){
+    try{await dl.save({filename,data:blob});toast('Arquivo salvo.')}
+    catch(e){
+      if(e&&e.code==='declined')return;
+      if(e&&(e.code==='rejected_extension'||e.code==='extension_not_enabled'))toast('Este tipo de arquivo não pode ser baixado por aqui.');
+      else toast('Não foi possível baixar o arquivo.');
+    }
+    return;
+  }
+  const u=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(u),4000);
+}
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg,ms=3400){
+  const t=$('#toast');t.textContent=msg;t.classList.add('on');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),ms);
+}
+
+/* ---------- tema ---------- */
+function applyTheme(t){
+  const r=document.documentElement;
+  const valid=['light','dark'];
+  if(valid.includes(t)) r.setAttribute('data-theme',t);
+  else r.removeAttribute('data-theme');
+  try{
+    if(valid.includes(t)) localStorage.setItem('apo-theme',t);
+    else localStorage.removeItem('apo-theme');
+  }catch(e){}
+  S.theme=t||'auto';
+  updateChrome();
+}
+const effTheme=()=>document.documentElement.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+function updateChrome(){
+  const dark=effTheme()==='dark',b=$('#btnTheme');
+  b.innerHTML=icon(dark?'sun':'moon');
+  const label=dark?'Mudar para o tema dia':'Mudar para o tema noite';
+  b.setAttribute('aria-label',label);
+  b.title='Tema: '+label.toLowerCase();
+}
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',updateChrome);
+
+/* ---------- cartões ---------- */
+function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,'')}catch(e){return u}}
+function labelOf(it){
+  switch(it.type){
+    case 'image':return it.caption||it.fileName||'Imagem';
+    case 'note':return it.title||(it.text||'').slice(0,40)||'Nota';
+    case 'list':return it.title||'Lista';
+    case 'link':return it.title||hostOf(it.url);
+    default:return it.title||it.fileName||'Arquivo';
+  }
+}
+function cardHTML(it,o={}){
+  const d=o.showDrawer?getDrawer(it.drawer):null;
+  const foot='<footer class="cf"><span>'+fmtDate(it.created)+'</span>'+(d?'<span class="where">'+esc(d.name)+'</span>':'')+(it.fav?'<span class="stamp" lang="ja" title="Selado" aria-label="Selado">印</span>':'')+'</footer>';
+  let inner='';
+  if(it.type==='image'){
+    const ar=it.w&&it.h?' style="aspect-ratio:'+it.w+'/'+it.h+'"':'';
+    inner='<img src="'+thumbURL(it)+'" alt="'+esc(it.caption||it.fileName||'Imagem guardada')+'" loading="lazy"'+ar+'>'+(it.caption?'<p class="cap">'+esc(it.caption)+'</p>':'');
+  }else if(it.type==='note'){
+    inner=(it.title?'<h3>'+esc(it.title)+'</h3>':'')+(it.text?'<p class="body">'+esc(it.text)+'</p>':'');
+  }else if(it.type==='list'){
+    const L=it.list||[],done=L.filter(x=>x.done).length;
+    inner=(it.title?'<h3>'+esc(it.title)+'</h3>':'')+'<ul class="todo">'+L.slice(0,6).map((x,i)=>'<li><label><input type="checkbox" data-act="toggle" data-id="'+it.id+'" data-idx="'+i+'"'+(x.done?' checked':'')+'><span>'+esc(x.t)+'</span></label></li>').join('')+'</ul>'+(L.length>6?'<p class="more">e mais '+(L.length-6)+'</p>':'')+'<p class="prog">'+done+' de '+L.length+' feitos</p>';
+  }else if(it.type==='link'){
+    inner='<div class="lk">'+icon('link',22)+'<div><h3>'+esc(it.title||hostOf(it.url))+'</h3><p class="host">'+esc(hostOf(it.url))+'</p></div></div>'+(it.text?'<p class="body">'+esc(it.text)+'</p>':'');
+  }else{
+    const ext=(it.fileName||'').split('.').pop().slice(0,5);
+    inner='<div class="fl"><span class="scroll-ic" lang="ja" aria-hidden="true">巻</span><div><h3>'+esc(it.title||it.fileName)+'</h3><p class="host">'+esc(ext?ext.toUpperCase()+', ':'')+fmtSize(it.size||0)+'</p></div></div>'+(it.text?'<p class="body" style="margin-top:10px">'+esc(it.text)+'</p>':'');
+  }
+  return '<article class="card card-'+it.type+'" data-id="'+it.id+'" data-sd="'+(o.showDrawer?1:0)+'" tabindex="0" aria-label="Abrir: '+esc(labelOf(it))+'">'+inner+foot+'</article>';
+}
+
+/* ---------- vistas ---------- */
+function drawerHTML(d,i,counts){
+  const n=counts[d.id]||0,h=HERBS[d.herb%HERBS.length];
+  return '<div class="slot" style="--i:'+i+'"><button class="drawer" data-act="open-drawer" data-id="'+d.id+'" aria-label="'+esc(d.name)+', '+drawerTypeLabel(d)+', '+plural(n,'item','itens')+'">'
+    +'<span class="plate"><span class="hz" lang="ja">'+h[0]+'</span></span>'
+    +'<span class="d-name"><span>'+esc(d.name)+'</span></span>'
+    +'<span class="d-kind">'+esc(drawerTypeLabel(d))+'</span>'
+    +'<span class="d-foot"><span class="d-count">'+plural(n,'item','itens')+'</span><span class="pull" aria-hidden="true"></span><span></span></span>'
+    +'</button></div>';
+}
+function viewHome(){
+  const counts={};S.items.forEach(i=>counts[i.drawer]=(counts[i.drawer]||0)+1);
+  const recents=[...S.items].sort(byNew).slice(0,8);
+  const title=S.name?'O armário de '+esc(S.name):'O seu armário';
+  const enter=!homeEntered&&!reduce;homeEntered=true;
+  return (S.persistent?'':'<p class="banner" role="alert">Não foi possível salvar neste navegador (talvez a aba seja privada). Os itens ficam só até você fechar esta página.</p>')
+  +'<section class="hero"><div class="hero-text"><h1 tabindex="-1">'+title+'</h1><p>Imagens, anotações, listas, links e arquivos, cada um na gaveta que você escolher.</p></div>'
+  +'<div class="hero-art" aria-hidden="true"><span class="vtitle" lang="ja">薬屋のひとりごと</span>'+sprig()+'</div></section>'
+  +'<section class="cab-wrap" aria-label="Gavetas"><div class="cornice" aria-hidden="true"></div><div class="cabinet"><div class="drawers'+(enter?' enter':'')+'">'
+  +S.drawers.map((d,i)=>drawerHTML(d,i,counts)).join('')
+  +'<div class="slot new" style="--i:'+S.drawers.length+'"><button class="drawer" data-act="new-drawer">'+icon('plus',26)+'<span>Nova gaveta</span></button></div>'
+  +'</div></div></section>'
+  +(recents.length?'<h2 class="sec-h">Últimos guardados</h2><div class="grid">'+recents.map(i=>cardHTML(i,{showDrawer:true})).join('')+'</div>':'')
+  +'<footer class="quote" aria-label="Frase romântica para hoje"><span>Uma frase para o coração</span><p>“'+esc(romanticLine)+'”</p></footer>';
+}
+function emptyHTML(h,p,btn){
+  return '<div class="empty">'+mortar+'<h2>'+h+'</h2><p>'+p+'</p>'+(btn||'')+'</div>';
+}
+function viewDrawer(){
+  const d=getDrawer(S.view.id),h=HERBS[d.herb%HERBS.length];
+  const all=S.items.filter(i=>i.drawer===d.id).sort(byNew);
+  const chips=[['all','Tudo',all.length]];
+  if(drawerContentType(d)==='all')Object.keys(TYPES).forEach(t=>{const n=all.filter(i=>i.type===t).length;if(n)chips.push([t,TYPES[t].pl,n])});
+  const nf=all.filter(i=>i.fav).length;if(nf)chips.push(['fav','Selados',nf]);
+  if(!chips.some(c=>c[0]===S.filter))S.filter='all';
+  const list=S.filter==='all'?all:S.filter==='fav'?all.filter(i=>i.fav):all.filter(i=>i.type===S.filter);
+  const emptyDescription=drawerContentType(d)==='all'
+    ?'Guarde uma imagem, uma anotação, uma lista, um link ou um arquivo.'
+    :'Guarde '+TYPES[drawerContentType(d)].pl.toLowerCase()+' aqui para manter esta gaveta organizada.';
+  return '<section class="dview emerge"><div class="dhead">'
+   +'<button class="back" data-act="home">'+icon('back')+'Armário</button>'
+   +'<div class="dtitle"><span class="plate"><span class="hz" lang="ja">'+h[0]+'</span></span><div><h1 tabindex="-1">'+esc(d.name)+'</h1><p class="muted small">'+esc(h[1])+' · '+esc(drawerTypeLabel(d))+' · '+plural(all.length,'item','itens')+'</p></div></div>'
+   +'<div class="dactions"><button class="btn btn-primary" data-act="add">'+icon('plus')+'Guardar aqui</button><button class="icon-btn" data-act="edit-drawer" aria-label="Editar gaveta">'+icon('edit')+'</button></div></div>'
+   +(all.length?'<div class="chips" role="group" aria-label="Filtrar por tipo">'+chips.map(c=>'<button class="chip" data-act="chip" data-f="'+c[0]+'" aria-pressed="'+(S.filter===c[0])+'">'+c[1]+'<span class="n">'+c[2]+'</span></button>').join('')+'</div>':'')
+   +(list.length?'<div class="grid">'+list.map(i=>cardHTML(i)).join('')+'</div>'
+     :all.length?emptyHTML('Nada deste tipo por aqui','Escolha outro filtro para ver o resto da gaveta.','<button class="btn" data-act="chip" data-f="all">Ver tudo</button>')
+     :emptyHTML('Esta gaveta está vazia',emptyDescription,'<button class="btn btn-primary" data-act="add">'+icon('plus')+'Guardar o primeiro item</button>'))
+   +'</section>';
+}
+function viewSearch(){
+  const terms=norm(S.q).split(/\s+/).filter(Boolean);
+  const counts={};S.items.forEach(i=>counts[i.drawer]=(counts[i.drawer]||0)+1);
+  const drawers=S.drawers.filter(d=>terms.every(t=>norm(d.name+' '+drawerTypeLabel(d)).includes(t)));
+  const res=S.items.filter(it=>{
+    const drawer=getDrawer(it.drawer);
+    const type=TYPES[it.type];
+    const mimeExt=(it.mime||'').split('/').pop()||'';
+    const fileExt=(it.fileName||'').match(/\.([^.]+)$/)?.[1]||'';
+    const extensionAliases=[mimeExt,fileExt];
+    if(extensionAliases.some(ext=>['jpg','jpeg'].includes(norm(ext))))extensionAliases.push('jpg','jpeg');
+    const hay=norm([
+      drawer&&drawer.name,it.type,type&&type.pt,type&&type.pl,
+      it.title,it.text,it.caption,it.url,it.fileName,it.mime,...extensionAliases,
+      (it.list||[]).map(x=>x.t).join(' ')
+    ].join(' '));
+    return terms.every(t=>hay.includes(t));
+  }).sort(byNew);
+  const drawerSection=drawers.length
+    ?'<h2 class="sec-h">Gavetas encontradas</h2><div class="drawers search-drawers">'+drawers.map((d,i)=>drawerHTML(d,i,counts)).join('')+'</div>'
+    :'';
+  const itemSection=res.length
+    ?'<h2 class="sec-h">Itens encontrados</h2><div class="grid">'+res.map(i=>cardHTML(i,{showDrawer:true})).join('')+'</div>'
+    :'';
+  return '<section class="dview"><div class="dhead"><button class="back" data-act="clear-search">'+icon('back')+'Voltar</button><div class="dtitle"><h1 tabindex="-1">Resultados para “'+esc(S.q.trim())+'”</h1></div></div>'
+   +(drawerSection+itemSection||emptyHTML('Nada encontrado','Tente outra palavra, ou procure pelo nome de uma gaveta.'))
+   +'</section>';
+}
+function render(focusHead){
+  updateChrome();
+  const app=$('#app');
+  if(S.q.trim())app.innerHTML=viewSearch();
+  else if(S.view.k==='drawer'&&getDrawer(S.view.id))app.innerHTML=viewDrawer();
+  else{S.view={k:'home'};app.innerHTML=viewHome()}
+  if(focusHead){const h=$('#app h1');if(h)h.focus({preventScroll:true})}
+}
+function go(view,focus=true){
+  S.view=view;S.filter='all';S.q='';$('#q').value='';
+  render(focus);window.scrollTo(0,0);
+}
+
+/* ---------- visualizador ---------- */
+const dlgView=$('#dlgView');
+const V={id:null,list:[],objURL:null};
+function revokeFull(){if(V.objURL){URL.revokeObjectURL(V.objURL);V.objURL=null}}
+function openViewer(id){
+  V.id=id;V.list=$$('#app .card').map(c=>c.dataset.id);
+  if(!V.list.includes(id))V.list=[id];
+  renderViewer();
+  if(!dlgView.open)dlgView.showModal();
+}
+async function renderViewer(){
+  const it=getItem(V.id);
+  if(!it){if(dlgView.open)dlgView.close();return}
+  revokeFull();
+  const d=getDrawer(it.drawer),idx=V.list.indexOf(it.id);
+  let body='';
+  if(it.type==='image'){
+    body='<div class="v-media"><img id="vImg" src="'+thumbURL(it)+'" alt="'+esc(it.caption||'Imagem guardada')+'"></div><div class="v-body">'+(it.caption?'<p class="v-cap">'+esc(it.caption)+'</p>':'')+'<p class="v-meta" style="margin:'+(it.caption?'8px':'0')+' 0 0">Guardada em '+fmtDate(it.created)+'</p></div>';
+  }else if(it.type==='note'){
+    body='<div class="v-body">'+(it.title?'<h2>'+esc(it.title)+'</h2>':'')+'<p class="v-meta">'+fmtDate(it.created)+'</p><p class="v-text">'+esc(it.text||'')+'</p></div>';
+  }else if(it.type==='list'){
+    const L=it.list||[],done=L.filter(x=>x.done).length;
+    body='<div class="v-body">'+(it.title?'<h2>'+esc(it.title)+'</h2>':'')+'<p class="v-meta">'+fmtDate(it.created)+'</p><ul class="todo" style="font-size:1.08rem;gap:9px">'+L.map((x,i)=>'<li><label><input type="checkbox" data-act="toggle" data-id="'+it.id+'" data-idx="'+i+'"'+(x.done?' checked':'')+'><span>'+esc(x.t)+'</span></label></li>').join('')+'</ul><p class="prog">'+done+' de '+L.length+' feitos</p></div>';
+  }else if(it.type==='link'){
+    body='<div class="v-body"><h2>'+esc(it.title||hostOf(it.url))+'</h2><p class="v-meta">'+esc(it.url)+'<br>'+fmtDate(it.created)+'</p>'+(it.text?'<p class="v-text">'+esc(it.text)+'</p>':'')+'</div>';
+  }else{
+    body='<div class="v-body"><div class="fl" style="margin-bottom:14px"><span class="scroll-ic" lang="ja" aria-hidden="true">巻</span><div><h2 style="font-size:1.4rem;margin:0">'+esc(it.title||it.fileName)+'</h2><p class="v-meta" style="margin:2px 0 0">'+fmtSize(it.size||0)+', guardado em '+fmtDate(it.created)+'</p></div></div>'+(it.text?'<p class="v-text">'+esc(it.text)+'</p>':'')+'</div>';
+  }
+  const acts=[
+    '<button class="btn" data-act="v-fav" aria-pressed="'+!!it.fav+'">'+icon('stamp')+(it.fav?'Tirar o selo':'Selar')+'</button>',
+    it.type==='link'?'<a class="btn btn-primary" href="'+esc(it.url)+'" target="_blank" rel="noopener noreferrer">'+icon('ext')+'Abrir link</a>':'',
+    (it.type==='image'||it.type==='file')?'<button class="btn" data-act="v-dl">'+icon('dl')+'Baixar</button>':'',
+    '<button class="btn" data-act="v-edit">'+icon('edit')+'Editar</button>',
+    '<button class="btn btn-danger" data-act="v-del">'+icon('trash')+'Excluir</button>'
+  ].join('');
+  dlgView.innerHTML='<div class="dlg-bar"><h2>'+esc(d?d.name:'Item')+'</h2><button class="icon-btn" data-act="v-close" aria-label="Fechar">'+icon('x')+'</button></div>'+body+'<div class="dlg-foot">'+acts+'</div>'
+    +(idx>0?'<button class="v-nav prev" data-act="v-prev" aria-label="Anterior">'+icon('back',24)+'</button>':'')
+    +(idx>=0&&idx<V.list.length-1?'<button class="v-nav next" data-act="v-next" aria-label="Próximo">'+icon('next',24)+'</button>':'');
+  if(it.type==='image'){
+    try{
+      const rec=await getItemBlob(it.id);
+      if(rec&&V.id===it.id){V.objURL=URL.createObjectURL(rec.blob);const im=$('#vImg');if(im)im.src=V.objURL}
+    }catch(e){console.error(e)}
+  }
+}
+function stepViewer(n){
+  const i=V.list.indexOf(V.id)+n;
+  if(i<0||i>=V.list.length)return;
+  V.id=V.list[i];renderViewer();
+}
+dlgView.addEventListener('close',()=>{revokeFull();V.id=null});
+dlgView.addEventListener('click',e=>{if(e.target===dlgView)dlgView.close()});
+
+/* ---------- formulário de item ---------- */
+const dlgForm=$('#dlgForm');
+const F={mode:'add',type:'image',lockedType:null,drawerPreference:null,editId:null,imgs:[],files:[],urls:[]};
+const val=s=>$(s).value.trim();
+function buildTabs(){
+  $('#fTabs').hidden=F.mode==='edit'||!!F.lockedType;
+  $('#fTypeLock').hidden=F.mode==='edit'||!F.lockedType;
+  if(F.lockedType)$('#fTypeLock').textContent='Esta gaveta é exclusiva para '+TYPES[F.lockedType].pl.toLowerCase()+'.';
+  $('#fTabs').innerHTML=Object.keys(TYPES).map(t=>'<button class="tab" role="tab" data-act="f-tab" data-t="'+t+'" aria-selected="'+(F.type===t)+'">'+icon(TYPES[t].ic,18)+TYPES[t].pt+'</button>').join('');
+}
+function refreshDrawerOptions(preferred=F.drawerPreference){
+  const select=$('#fDrawer'),hint=$('#fDrawerHint');
+  const eligible=S.drawers.filter(d=>drawerAccepts(d,F.type));
+  if(!eligible.length){
+    select.innerHTML='<option value="">Nenhuma gaveta compatível</option>';
+    select.value='';
+    hint.textContent='Não há gavetas para '+TYPES[F.type].pl.toLowerCase()+'. Cancele e crie uma gaveta desse tipo para continuar.';
+    hint.hidden=false;
+    $('#fSave').disabled=true;
+    return;
+  }
+  select.innerHTML=eligible.map(d=>'<option value="'+esc(d.id)+'">'+esc(d.name)+' — '+esc(drawerTypeLabel(d))+'</option>').join('');
+  const chosen=eligible.some(d=>d.id===preferred)?preferred:eligible[0].id;
+  select.value=chosen;F.drawerPreference=chosen;
+  hint.hidden=true;
+  $('#fSave').disabled=false;
+}
+function switchTab(t){
+  F.type=t;buildTabs();
+  $$('.pane',dlgForm).forEach(p=>p.hidden=p.dataset.pane!==t);
+  $('#fErr').hidden=true;
+  $('#fSave').textContent=F.mode==='edit'?'Salvar alterações':'Guardar na gaveta';
+  refreshDrawerOptions();
+  renderPrevs();
+}
+function clearPrevURLs(){F.urls.forEach(u=>URL.revokeObjectURL(u));F.urls=[]}
+function isImageFile(file){
+  return file.type.startsWith('image/')||/\.(avif|bmp|gif|jpe?g|png|svg|tiff?|webp)$/i.test(file.name);
+}
+function renderPrevs(){
+  clearPrevURLs();
+  const edit=F.mode==='edit';
+  $('#imgAdd').hidden=edit;
+  $('#fileAdd').hidden=edit;
+  $('#fileTitleField').hidden=!edit;
+
+  const pv=$('#prevImgs');
+  if(edit&&F.type==='image'){
+    const it=getItem(F.editId);
+    pv.innerHTML='<div class="pv"><img src="'+thumbURL(it)+'" alt=""></div>';
+  }else{
+    pv.innerHTML=F.imgs.map((f,i)=>{
+      const u=URL.createObjectURL(f);F.urls.push(u);
+      return '<div class="pv"><img src="'+u+'" alt=""><button data-act="rm-img" data-i="'+i+'" aria-label="Remover '+esc(f.name)+'">'+icon('x',14)+'</button></div>';
+    }).join('');
+  }
+
+  // Legenda só faz sentido para 1 imagem nova, ou ao editar uma imagem.
+  $('#capField').hidden = F.type==='image'
+    ? (edit ? false : F.imgs.length!==1)
+    : true;
+
+  $('#prevFiles').innerHTML=F.files.map((f,i)=>
+    '<li>'+icon('file',18)+'<span>'+esc(f.name)+' <small class="muted">('+fmtSize(f.size)+')</small></span>'+
+    '<button data-act="rm-file" data-i="'+i+'" aria-label="Remover '+esc(f.name)+'">'+icon('x',16)+'</button></li>'
+  ).join('');
+}
+function addFiles(list,targetType=F.type){
+  if(F.mode==='edit')return;
+  const arr=[...list];
+  if(targetType!=='image'&&targetType!=='file'){
+    toast('Este tipo não recebe arquivos. Escolha Imagem ou Arquivo para adicionar um anexo.');
+    return;
+  }
+  const wrongType=arr.filter(f=>isImageFile(f)!==(targetType==='image'));
+  if(wrongType.length)toast(targetType==='image'
+    ?'A opção Imagem aceita somente arquivos de imagem.'
+    :'A opção Arquivo não aceita imagens. Escolha Imagem para adicioná-las.');
+  const matching=arr.filter(f=>isImageFile(f)===(targetType==='image'));
+  const tooBig=matching.filter(f=>f.size>40*1048576);
+  if(tooBig.length)toast('Arquivos acima de 40 MB não cabem aqui: '+tooBig.map(f=>f.name).join(', '));
+  const accepted=matching.filter(f=>f.size<=40*1048576);
+  if(targetType==='image')F.imgs.push(...accepted);
+  else F.files.push(...accepted);
+  renderPrevs();
+}
+function openForm(opts={}){
+  const {drawer=null,edit=null,files=null}=opts;
+  if(!S.drawers.length){openDrawerDlg();toast('Crie uma gaveta primeiro.');return}
+  F.mode=edit?'edit':'add';F.editId=edit?edit.id:null;F.imgs=[];F.files=[];
+  const preferredDrawer=edit?edit.drawer:(drawer||currentDrawerId());
+  const preferred=getDrawer(preferredDrawer);
+  const preferredType=preferred&&drawerContentType(preferred)!=='all'?drawerContentType(preferred):null;
+  const explicitType=opts.type||(files&&files.length?(isImageFile(files[0])?'image':'file'):null);
+  const requestedType=edit?edit.type:(explicitType||preferredType||'image');
+  if(!edit&&preferred&&drawerContentType(preferred)!=='all'&&requestedType!==drawerContentType(preferred)){
+    toast('Esta gaveta aceita '+drawerTypeLabel(preferred).replace(/^Somente /,'somente ')+'.');
+    return;
+  }
+  F.lockedType=!edit&&preferred&&drawerContentType(preferred)!=='all'?drawerContentType(preferred):null;
+  const type=F.lockedType||requestedType;
+  F.drawerPreference=preferredDrawer||S.drawers[0].id;
+  $('#fHead').textContent=edit?'Editar '+TYPES[edit.type].pt.toLowerCase():'Guardar na gaveta';
+  ['#fCaption','#fNoteTitle','#fNoteText','#fListTitle','#fListText','#fUrl','#fLinkTitle','#fLinkNote','#fFileTitle','#fFileNote'].forEach(s=>$(s).value='');
+  $('#fImgs').value='';$('#fFiles').value='';
+  if(edit){
+    if(edit.type==='image')$('#fCaption').value=edit.caption||'';
+    if(edit.type==='note'){$('#fNoteTitle').value=edit.title||'';$('#fNoteText').value=edit.text||''}
+    if(edit.type==='list'){$('#fListTitle').value=edit.title||'';$('#fListText').value=(edit.list||[]).map(x=>x.t).join('\n')}
+    if(edit.type==='link'){$('#fUrl').value=edit.url||'';$('#fLinkTitle').value=edit.title||'';$('#fLinkNote').value=edit.text||''}
+    if(edit.type==='file'){$('#fFileTitle').value=edit.title||edit.fileName||'';$('#fFileNote').value=edit.text||''}
+  }
+  F.type=edit?edit.type:type;
+  switchTab(F.type);
+  if(files&&files.length)addFiles(files);
+  if(!dlgForm.open)dlgForm.showModal();
+}
+function normalizeUrl(raw){
+  let u=raw.trim();
+  if(!u)throw new UserErr('Cole o endereço do link.');
+  if(!/^[a-z][a-z0-9+.-]*:/i.test(u))u='https://'+u;
+  let p;try{p=new URL(u)}catch(e){throw new UserErr('Esse endereço não parece válido. Confira e tente de novo.')}
+  if(p.protocol!=='http:'&&p.protocol!=='https:')throw new UserErr('Só links que começam com http ou https são aceitos.');
+  return p.href;
+}
+async function saveForm(){
+  const btn=$('#fSave');btn.disabled=true;
+  const err=$('#fErr');err.hidden=true;
+  try{
+    const drawer=$('#fDrawer').value;
+    if(!drawer)throw new UserErr('Escolha uma gaveta.');
+    assertDrawerAccepts(drawer,F.type);
+    const n=F.mode==='edit'?await saveEdit(drawer):await saveNew(drawer);
+    dlgForm.close();
+    render();
+    const d=getDrawer(drawer);
+    toast(F.mode==='edit'?'Alterações salvas.':(n>1?n+' itens guardados':'Guardado')+(d?' em “'+d.name+'”.':'.'));
+  }catch(e){
+    if(!(e instanceof UserErr))console.error(e);
+    err.textContent=e instanceof UserErr?e.message:'Não foi possível guardar. Talvez o espaço do navegador tenha acabado; tente um arquivo menor.';
+    err.hidden=false;
+  }finally{btn.disabled=!$('#fDrawer').value;btn.textContent=F.mode==='edit'?'Salvar alterações':'Guardar na gaveta'}
+}
+async function saveNew(drawer){
+  const t=F.type;let made=0;
+  if(t==='image'){
+    if(!F.imgs.length)throw new UserErr('Escolha pelo menos uma imagem.');
+    let bad=0;const one=F.imgs.length===1;
+    for(let i=0;i<F.imgs.length;i++){
+      $('#fSave').textContent='Guardando '+(i+1)+' de '+F.imgs.length+'…';
+      try{
+        const f=F.imgs[i],p=await processImage(f);
+        await addItem({type:'image',drawer,caption:one?val('#fCaption'):'',thumb:p.thumb,w:p.w,h:p.h,mime:p.full.type,size:p.full.size,fileName:f.name},p.full);
+        made++;
+      }catch(e){console.error(e);bad++}
+    }
+    if(!made)throw new UserErr('Não consegui ler essas imagens. Tente JPG, PNG ou WebP.');
+    if(bad)toast(bad+' imagem(ns) não puderam ser lidas.');
+  }else if(t==='note'){
+    const title=val('#fNoteTitle'),text=$('#fNoteText').value.trim();
+    if(!title&&!text)throw new UserErr('Escreva um título ou um texto.');
+    await addItem({type:'note',drawer,title,text});made=1;
+  }else if(t==='list'){
+    const lines=$('#fListText').value.split('\n').map(s=>s.trim()).filter(Boolean);
+    if(!lines.length)throw new UserErr('Escreva pelo menos um item.');
+    await addItem({type:'list',drawer,title:val('#fListTitle'),list:lines.map(s=>({t:s,done:false}))});made=1;
+  }else if(t==='link'){
+    const url=normalizeUrl($('#fUrl').value);
+    await addItem({type:'link',drawer,url,title:val('#fLinkTitle'),text:val('#fLinkNote')});made=1;
+  }else{
+    if(!F.files.length)throw new UserErr('Escolha pelo menos um arquivo.');
+    for(let i=0;i<F.files.length;i++){
+      $('#fSave').textContent='Guardando '+(i+1)+' de '+F.files.length+'…';
+      const f=F.files[i];
+      await addItem({type:'file',drawer,title:'',text:val('#fFileNote'),fileName:f.name,mime:f.type,size:f.size},f.slice(0,f.size,f.type));made++;
+    }
+  }
+  return made;
+}
+async function saveEdit(drawer){
+  const it=getItem(F.editId);if(!it)throw new UserErr('Este item não existe mais.');
+  assertDrawerAccepts(drawer,it.type);
+  if(it.type==='image')it.caption=val('#fCaption');
+  else if(it.type==='note'){
+    const title=val('#fNoteTitle'),text=$('#fNoteText').value.trim();
+    if(!title&&!text)throw new UserErr('Escreva um título ou um texto.');
+    it.title=title;it.text=text;
+  }else if(it.type==='list'){
+    const lines=$('#fListText').value.split('\n').map(s=>s.trim()).filter(Boolean);
+    if(!lines.length)throw new UserErr('Escreva pelo menos um item.');
+    const prev=(it.list||[]).slice();
+    it.list=lines.map(s=>{const k=prev.findIndex(x=>x.t===s);const done=k>=0?prev[k].done:false;if(k>=0)prev.splice(k,1);return {t:s,done}});
+    it.title=val('#fListTitle');
+  }else if(it.type==='link'){
+    it.url=normalizeUrl($('#fUrl').value);it.title=val('#fLinkTitle');it.text=val('#fLinkNote');
+  }else{
+    it.title=val('#fFileTitle');it.text=val('#fFileNote');
+  }
+  it.drawer=drawer;
+  await saveItem(it);
+  return 1;
+}
+dlgForm.addEventListener('close',()=>{clearPrevURLs();F.imgs=[];F.files=[]});
+
+/* ---------- gavetas ---------- */
+const dlgDrawer=$('#dlgDrawer');
+const D={editId:null,herb:0};
+function nextHerb(){const used=new Set(S.drawers.map(d=>d.herb));for(let i=0;i<HERBS.length;i++)if(!used.has(i))return i;return S.drawers.length%HERBS.length}
+function renderHerbs(){
+  $('#herbs').innerHTML=HERBS.map((h,i)=>'<button type="button" class="herb" data-act="pick-herb" data-i="'+i+'" aria-pressed="'+(D.herb===i)+'"><span class="hz" lang="ja">'+h[0]+'</span><span>'+h[1]+'</span></button>').join('');
+}
+function openDrawerDlg(id=null){
+  D.editId=id;const d=id?getDrawer(id):null;
+  $('#dHead').textContent=d?'Editar gaveta':'Nova gaveta';
+  $('#dName').value=d?d.name:'';
+  $('#dType').value=d?drawerContentType(d):'';
+  $('#dType').disabled=!!d;
+  $('#dTypeHelp').textContent=d
+    ?(drawerContentType(d)==='all'?'Esta gaveta antiga continua livre e não pode ser reclassificada.':'O tipo desta gaveta não pode ser alterado.')
+    :'Gavetas antigas continuam livres. Escolha um tipo para separar os novos itens.';
+  D.herb=d?d.herb:nextHerb();
+  $('#dDel').hidden=!d;$('#dSave').textContent=d?'Salvar':'Criar gaveta';
+  $('#dErr').hidden=true;renderHerbs();
+  if(!dlgDrawer.open)dlgDrawer.showModal();
+  $('#dName').focus();
+}
+async function saveDrawer(){
+  const name=val('#dName');
+  if(!name){const e=$('#dErr');e.textContent='Dê um nome para a gaveta.';e.hidden=false;return}
+  const contentType=$('#dType').value;
+  if(!D.editId&&!Object.prototype.hasOwnProperty.call(TYPES,contentType)){const e=$('#dErr');e.textContent='Escolha o tipo de conteúdo desta gaveta.';e.hidden=false;return}
+  try{
+    if(D.editId){
+      const d=getDrawer(D.editId);d.name=name;d.herb=D.herb;await store.put('drawers',d);
+    }else{
+      const d={id:uid(),name,herb:D.herb,contentType,order:S.drawers.reduce((m,x)=>Math.max(m,x.order),-1)+1,created:Date.now()};
+      await store.put('drawers',d);S.drawers.push(d);
+    }
+    dlgDrawer.close();render();toast(D.editId?'Gaveta atualizada.':'Gaveta criada.');
+  }catch(e){console.error(e);toast('Não foi possível salvar a gaveta.')}
+}
+async function deleteDrawer(){
+  const d=getDrawer(D.editId);if(!d)return;
+  const n=S.items.filter(i=>i.drawer===d.id).length;
+  const ok=await askConfirm('Excluir “'+d.name+'”?',n?'A gaveta e '+plural(n,'item','itens')+' guardados nela serão apagados. Isso não pode ser desfeito.':'A gaveta está vazia e será removida.','Excluir gaveta');
+  if(!ok)return;
+  try{
+    for(const it of S.items.filter(i=>i.drawer===d.id))await removeItem(it.id);
+    await store.del('drawers',d.id);
+    S.drawers=S.drawers.filter(x=>x.id!==d.id);
+    dlgDrawer.close();go({k:'home'});toast('Gaveta excluída.');
+  }catch(e){console.error(e);toast('Não foi possível excluir.')}
+}
+
+/* ---------- confirmação ---------- */
+const dlgConfirm=$('#dlgConfirm');
+let confirmRes=null;
+function askConfirm(title,msg,ok='Excluir'){
+  return new Promise(res=>{
+    $('#cTitle').textContent=title;$('#cMsg').textContent=msg;$('#cYes').textContent=ok;
+    confirmRes=res;dlgConfirm.showModal();
+  });
+}
+function confirmDone(v){
+  if(confirmRes){const r=confirmRes;confirmRes=null;r(v)}
+  if(dlgConfirm.open)dlgConfirm.close();
+}
+dlgConfirm.addEventListener('close',()=>confirmDone(false));
+
+/* ---------- ajustes, backup ---------- */
+const dlgSettings=$('#dlgSettings');
+async function openSettings(){
+  $('#sName').value=S.name;updateChrome();$('#sUsage').textContent='';
+  if(!dlgSettings.open)dlgSettings.showModal();
+  updateStorageStatus();
+  updateCloudStatus();
+  try{
+    if(navigator.storage&&navigator.storage.estimate){
+      const e=await navigator.storage.estimate();
+      if(e&&e.usage!=null)$('#sUsage').textContent='Espaço usado neste navegador: '+fmtSize(e.usage)+'.';
+    }
+  }catch(e){}
+}
+function updateStorageStatus(){
+  const status=$('#sStorageStatus');
+  if(!S.persistent)status.textContent='O armazenamento permanente não está disponível. Os dados podem desaparecer ao fechar esta página; exporte um backup para guardá-los.';
+  else if(S.storagePersistent)status.textContent='Seus dados estão salvos neste navegador, com proteção contra limpeza automática.';
+  else if(S.storageProtectionRequested)status.textContent='O navegador não concedeu proteção contra limpeza automática. Seus dados continuam salvos aqui; mantenha um backup para evitar perdas.';
+  else status.textContent='Seus dados são salvos neste navegador. Solicite a proteção abaixo e faça backups para evitar perdas.';
+}
+async function protectStorage(){
+  S.storageProtectionRequested=true;
+  try{
+    const storage=navigator.storage;
+    if(!S.persistent||!storage||typeof storage.persist!=='function'){
+      S.storagePersistent=false;
+    }else{
+      S.storagePersistent=await storage.persist();
+    }
+  }catch(e){
+    console.error(e);
+    S.storagePersistent=false;
+  }
+  updateStorageStatus();
+}
+const blobToData=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(b)});
+function dataToBlob(d){
+  const i=d.indexOf(','),mime=(d.slice(5,i).split(';')[0])||'application/octet-stream';
+  const bin=atob(d.slice(i+1)),arr=new Uint8Array(bin.length);
+  for(let k=0;k<bin.length;k++)arr[k]=bin.charCodeAt(k);
+  return new Blob([arr],{type:mime});
+}
+async function queueCloudOperation(operation){
+  const queued=await store.get('meta','_cloudQueue')||[];
+  queued.push(operation);
+  await store.put('meta',{id:'_cloudQueue',v:queued});
+}
+async function syncCloudRecord(storeName,value,user=S.user){
+  if(!cloud||!user)return;
+  if(storeName==='meta'){
+    if(value.id==='name'){
+      const {error}=await cloud.from('apo_perfis').upsert({user_id:user.id,name:value.v||''},{onConflict:'user_id'});
+      if(error)throw error;
+    }
+    return;
+  }
+  if(storeName==='blobs'){
+    const path=user.id+'/'+value.id;
+    const {error}=await cloud.storage.from(CLOUD_BUCKET).upload(path,value.blob,{upsert:true,contentType:value.blob.type||'application/octet-stream'});
+    if(error)throw error;
+    return;
+  }
+  const table=CLOUD_TABLES[storeName];
+  if(!table)return;
+  const data={...value};
+  delete data.id;
+  if(storeName==='items'&&data.thumb){
+    data.thumbData=await blobToData(data.thumb);
+    delete data.thumb;
+  }
+  const {error}=await cloud.from(table).upsert({id:String(value.id),user_id:user.id,data},{onConflict:'user_id,id'});
+  if(error)throw error;
+}
+async function deleteCloudRecord(storeName,id,user=S.user){
+  if(!cloud||!user)return;
+  if(storeName==='blobs'){
+    const {error}=await cloud.storage.from(CLOUD_BUCKET).remove([user.id+'/'+id]);
+    if(error)throw error;
+    return;
+  }
+  const table=CLOUD_TABLES[storeName];
+  if(!table)return;
+  const {error}=await cloud.from(table).delete().eq('id',String(id));
+  if(error)throw error;
+}
+async function clearCloudRecords(storeName,rows,user=S.user){
+  if(!cloud||!user)return;
+  if(storeName==='blobs'){
+    const paths=rows.map(row=>user.id+'/'+row.id);
+    if(paths.length){
+      const {error}=await cloud.storage.from(CLOUD_BUCKET).remove(paths);
+      if(error)throw error;
+    }
+    return;
+  }
+  const table=CLOUD_TABLES[storeName];
+  if(!table)return;
+  const {error}=await cloud.from(table).delete().eq('user_id',user.id);
+  if(error)throw error;
+  if(storeName==='items'){
+    let offset=0;
+    while(true){
+      const {data,error:listError}=await cloud.storage.from(CLOUD_BUCKET).list(user.id,{limit:100,offset});
+      if(listError)throw listError;
+      if(!data||!data.length)break;
+      const paths=data.map(file=>user.id+'/'+file.name);
+      const {error:removeError}=await cloud.storage.from(CLOUD_BUCKET).remove(paths);
+      if(removeError)throw removeError;
+      if(data.length<100)break;
+      offset+=data.length;
+    }
+  }
+}
+async function loadCloudUser(user){
+  const [{data:drawers,error:drawerError},{data:items,error:itemError},{data:profile,error:profileError}]=await Promise.all([
+    cloud.from('apo_gavetas').select('id,data'),
+    cloud.from('apo_itens').select('id,data'),
+    cloud.from('apo_perfis').select('name').eq('user_id',user.id).maybeSingle()
+  ]);
+  if(drawerError)throw drawerError;
+  if(itemError)throw itemError;
+  if(profileError)throw profileError;
+  const cachedName=(await store.get('meta','name',user.id))?.v||'';
+  cloudHydrating=true;
+  try{
+    for(const n of ['drawers','items','blobs'])await store.clear(n,user.id);
+    for(const row of drawers||[])await store.put('drawers',{...row.data,id:String(row.id)});
+    for(const row of items||[]){
+      const item={...row.data,id:String(row.id)};
+      if(item.thumbData){item.thumb=dataToBlob(item.thumbData);delete item.thumbData}
+      await store.put('items',item);
+    }
+    S.name=profile?.name||cachedName;
+    await store.put('meta',{id:'name',v:S.name});
+    S.cloudPending=(await store.get('meta','_cloudQueue',user.id)||[]).length>0;
+  }finally{cloudHydrating=false}
+  await loadScope(user.id);
+}
+async function setCloudUser(user){
+  S.user=user||null;
+  S.cloudError='';
+  S.cloudPending=false;
+  if(!user){
+    await loadScope('local');
+    render();updateCloudStatus();
+    return;
+  }
+  activeScope=user.id;
+  updateCloudStatus();
+  try{
+    if((await store.get('meta','_cloudQueue',user.id)||[]).length){
+      await loadScope(user.id);
+      await syncCloudNow();
+      if(S.cloudPending)throw new Error(S.cloudError||'Não foi possível concluir alterações pendentes.');
+    }
+    await loadCloudUser(user);
+  }catch(error){
+    console.error(error);
+    S.cloudError=error.message||'Não foi possível carregar os dados da conta.';
+    try{await loadScope(user.id)}catch(loadError){console.error(loadError)}
+  }
+  updateCloudStatus();
+  render();
+}
+async function syncCloudNow(){
+  if(!cloud||!S.user)return;
+  const queue=await store.get('meta','_cloudQueue')||[];
+  cloudHydrating=true;
+  try{
+    for(const operation of queue){
+      if(operation.kind==='delete')await deleteCloudRecord(operation.store,operation.id);
+      else if(operation.kind==='clear')await clearCloudRecords(operation.store,[],S.user);
+    }
+    await store.put('meta',{id:'_cloudQueue',v:[]});
+    const [blobs,drawers,items]=await Promise.all([
+      store.all('blobs'),store.all('drawers'),store.all('items')
+    ]);
+    for(const value of blobs)await syncCloudRecord('blobs',value);
+    for(const value of drawers)await syncCloudRecord('drawers',value);
+    for(const value of items)await syncCloudRecord('items',value);
+    const name=(await store.get('meta','name'))?.v||'';
+    await syncCloudRecord('meta',{id:'name',v:name});
+    S.cloudPending=false;S.cloudError='';
+    await store.put('meta',{id:'_cloudQueue',v:[]});
+    toast('Sincronização concluída.');
+  }catch(error){
+    console.error(error);
+    S.cloudPending=true;S.cloudError=error.message||'Não foi possível sincronizar.';
+    try{await queueCloudOperation({kind:'sync'})}catch(queueError){console.error(queueError)}
+    toast('A sincronização falhou. Os dados locais foram mantidos.');
+  }finally{
+    cloudHydrating=false;
+    updateCloudStatus();
+  }
+}
+async function copyLocalDataToCloud(){
+  if(!cloud||!S.user)return;
+  const [drawers,items,blobs]=await Promise.all([
+    store.all('drawers','local'),store.all('items','local'),store.all('blobs','local')
+  ]);
+  if(!drawers.length&&!items.length){toast('Não há dados locais para copiar.');return}
+  try{
+    for(const value of blobs)await syncCloudRecord('blobs',value);
+    for(const value of drawers)await syncCloudRecord('drawers',value);
+    for(const value of items)await syncCloudRecord('items',value);
+    const localName=(await store.get('meta','name','local'))?.v||'';
+    const {data:profile,error:profileError}=await cloud.from('apo_perfis').select('name').eq('user_id',S.user.id).maybeSingle();
+    if(profileError)throw profileError;
+    if(localName&&!profile?.name)await syncCloudRecord('meta',{id:'name',v:localName});
+    await loadCloudUser(S.user);
+    S.cloudPending=false;S.cloudError='';
+    toast('Dados locais copiados para sua conta.');
+    render();updateCloudStatus();
+  }catch(error){
+    console.error(error);
+    S.cloudPending=true;S.cloudError=error.message||'Não foi possível copiar os dados.';
+    updateCloudStatus();
+    toast('Não foi possível concluir a cópia. Seus dados locais continuam guardados.');
+  }
+}
+function updateCloudStatus(){
+  const status=$('#cloudStatus'),auth=$('#cloudAuthActions'),account=$('#cloudAccountActions'),authBlock=$('#cloudAuth');
+  if(!status)return;
+  if(!cloud){
+    status.textContent=cloudConfigError?cloudConfigError:!window.supabase?'Não foi possível carregar o cliente Supabase. Verifique sua conexão com a internet.':'Configure a URL e a chave pública do projeto em amor-config.js, aplique supabase-schema.sql e abra o site por localhost ou HTTPS.';
+  }else if(S.user){
+    status.textContent=S.cloudError?'Conta '+S.user.email+' conectada; há um problema: '+S.cloudError:
+      S.cloudPending?'Conta '+S.user.email+' conectada; existem alterações ainda não sincronizadas.':
+      'Conectada como '+S.user.email+'. Seus dados sincronizam com sua conta.';
+  }else{
+    status.textContent='Entre ou crie uma conta para acessar seus dados na nuvem. Sem login, os dados ficam apenas neste navegador.';
+  }
+  if(auth)auth.hidden=!cloud||!!S.user;
+  if(account)account.hidden=!cloud||!S.user;
+  if(authBlock)authBlock.hidden=!cloud;
+  const password=$('#cloudPassword');
+  if(password&&!S.user)password.setAttribute('autocomplete','current-password');
+}
+async function cloudAuth(action){
+  if(!cloud){updateCloudStatus();return}
+  const email=$('#cloudEmail').value.trim(),password=$('#cloudPassword').value;
+  if(!email||!password){toast('Preencha seu e-mail e sua senha.');return}
+  if(location.protocol==='file:'){toast('Abra a página em localhost ou HTTPS para conectar ao Supabase.');return}
+  let result;
+  if(action==='signup'){
+    result=await cloud.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
+    if(!result.error&&!result.data.session){toast('Conta criada. Confira seu e-mail para confirmar o cadastro.');return}
+  }else result=await cloud.auth.signInWithPassword({email,password});
+  if(result.error)throw result.error;
+  $('#cloudPassword').value='';
+  if(result.data.user)await setCloudUser(result.data.user);
+}
+async function exportBackup(){
+  toast('Preparando o backup…',6000);
+  try{
+    const items=[];
+    for(const it of S.items){
+      const o={...it};delete o.thumb;
+      o.thumbData=it.thumb?await blobToData(it.thumb):null;
+      if(it.type==='image'||it.type==='file'){const rec=await getItemBlob(it.id);o.blobData=rec?await blobToData(rec.blob):null}
+      items.push(o);
+    }
+    const payload={app:'diario-apotecaria',version:1,exported:new Date().toISOString(),name:S.name,drawers:S.drawers,items};
+    const day=new Date().toISOString().slice(0,10);
+    await saveFile('diario-apotecaria-'+day+'.json',new Blob([JSON.stringify(payload)],{type:'application/json'}));
+  }catch(e){console.error(e);toast('Não foi possível criar o backup.')}
+}
+async function importBackup(file){
+  try{
+    const data=JSON.parse(await file.text());
+    if(!data||data.app!=='diario-apotecaria'||!Array.isArray(data.drawers)||!Array.isArray(data.items))throw new UserErr('Esse arquivo não é um backup deste diário.');
+    const backupDrawers=new Map(data.drawers.map(d=>[String(d.id),{
+      id:String(d.id),name:String(d.name||'Gaveta'),herb:+d.herb||0,
+      contentType:d.contentType==null?'all':d.contentType,order:+d.order||0,created:+d.created||Date.now()
+    }]));
+    for(const d of backupDrawers.values()){
+      if(d.contentType!=='all'&&!Object.prototype.hasOwnProperty.call(TYPES,d.contentType))throw new UserErr('O backup contém uma gaveta com tipo inválido.');
+    }
+    for(const it of data.items){
+      const d=backupDrawers.get(String(it.drawer));
+      if(d&&d.contentType!=='all'&&d.contentType!==it.type)throw new UserErr('O backup mistura tipos na gaveta “'+d.name+'”. Nenhum dado foi importado.');
+    }
+    for(const d of backupDrawers.values())await store.put('drawers',d);
+    for(const o of data.items){
+      const it={...o};const {thumbData,blobData}=it;delete it.thumbData;delete it.blobData;
+      if(thumbData)it.thumb=dataToBlob(thumbData);
+      if(blobData)await store.put('blobs',{id:it.id,blob:dataToBlob(blobData)});
+      await store.put('items',it);
+    }
+    if(data.name&&!S.name){S.name=String(data.name).slice(0,40);await setMeta('name',S.name)}
+    await setMeta('seeded',true);
+    S.drawers=(await store.all('drawers')).sort((a,b)=>a.order-b.order);
+    S.items=await store.all('items');
+    urls.forEach(u=>URL.revokeObjectURL(u));urls.clear();
+    dlgSettings.close();go({k:'home'},false);
+    toast('Backup restaurado: '+plural(data.items.length,'item','itens')+'.');
+  }catch(e){
+    console.error(e);
+    toast(e instanceof UserErr?e.message:'Não foi possível ler o backup.');
+  }
+}
+async function wipeAll(){
+  const location=S.user?'deste aparelho e da sua conta na nuvem':'deste aparelho';
+  const ok=await askConfirm('Apagar tudo?','Todas as gavetas e todos os itens serão removidos '+location+'. Baixe um backup antes, se quiser guardar algo.','Apagar tudo');
+  if(!ok)return;
+  try{
+    for(const s of ['drawers','items','blobs'])await store.clear(s);
+    await setMeta('seeded',true);
+    S.drawers=[];S.items=[];urls.forEach(u=>URL.revokeObjectURL(u));urls.clear();
+    dlgSettings.close();go({k:'home'},false);toast('Tudo foi apagado.');
+  }catch(e){console.error(e);toast('Não foi possível apagar.')}
+}
+
+/* ---------- boas-vindas ---------- */
+const dlgWelcome=$('#dlgWelcome');
+async function closeWelcome(save){
+  if(save){
+    const n=val('#wName');
+    if(n){S.name=n;await setMeta('name',n)}
+  }
+  await setMeta('welcomed',true);
+  dlgWelcome.close();render();
+}
+
+/* ---------- eventos ---------- */
+function openDrawerView(id,btn){
+  const doIt=()=>go({k:'drawer',id});
+  if(btn&&!reduce){btn.classList.add('opening');setTimeout(doIt,170)}else doIt();
+}
+async function toggleItem(el){
+  const it=getItem(el.dataset.id);if(!it||!it.list)return;
+  const i=+el.dataset.idx;if(!it.list[i])return;
+  it.list[i].done=el.checked;
+  try{await saveItem(it)}catch(e){console.error(e);toast('Não foi possível salvar.')}
+  const done=it.list.filter(x=>x.done).length;
+  $$('[data-id="'+it.id+'"] .prog, .v-body .prog').forEach(p=>{
+    if(p.closest('.card')&&p.closest('.card').dataset.id!==it.id)return;
+    p.textContent=done+' de '+it.list.length+' feitos';
+  });
+  if(dlgView.open&&V.id===it.id){
+    const c=$('#app .card[data-id="'+it.id+'"]');
+    if(c){const t=document.createElement('template');t.innerHTML=cardHTML(it,{showDrawer:c.dataset.sd==='1'});c.replaceWith(t.content.firstElementChild)}
+  }
+}
+
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.matches&&t.matches('[data-act="toggle"]'))toggleItem(t);
+  else if(t.id==='fImgs'||t.id==='fFiles'){addFiles(t.files,t.id==='fImgs'?'image':'file');t.value=''}
+  else if(t.id==='fDrawer')F.drawerPreference=t.value;
+  else if(t.id==='sImport'&&t.files[0]){importBackup(t.files[0]);t.value=''}
+});
+
+document.addEventListener('click',async e=>{
+  const el=e.target.closest('[data-act]');
+  if(!el){
+    if(e.target.closest('a,label,input'))return;
+    const card=e.target.closest('.card');
+    if(card)openViewer(card.dataset.id);
+    return;
+  }
+  const a=el.dataset.act;
+  if(a==='toggle')return;
+  switch(a){
+    case 'home':go({k:'home'});break;
+    case 'clear-search':go(S.view.k==='drawer'?S.view:{k:'home'});break;
+    case 'add':openForm();break;
+    case 'open-drawer':openDrawerView(el.dataset.id,el);break;
+    case 'new-drawer':openDrawerDlg();break;
+    case 'edit-drawer':openDrawerDlg(S.view.id);break;
+    case 'chip':S.filter=el.dataset.f;render();break;
+    case 'theme':{
+      const theme=effTheme()==='dark'?'light':'dark';
+      applyTheme(theme);
+      await setMeta('theme',theme);
+      break;
+    }
+    case 'settings':openSettings();break;
+    case 's-close':dlgSettings.close();break;
+    case 's-name':{const n=val('#sName');S.name=n;await setMeta('name',n);render();toast('Nome salvo.');break}
+    case 's-persist':protectStorage();break;
+    case 'cloud-signin':cloudAuth('signin').catch(error=>{console.error(error);toast(error.message||'Não foi possível entrar na conta.')});break;
+    case 'cloud-signup':cloudAuth('signup').catch(error=>{console.error(error);toast(error.message||'Não foi possível criar a conta.')});break;
+    case 'cloud-signout':{
+      if(!cloud)break;
+      const {error}=await cloud.auth.signOut();
+      if(error){console.error(error);toast('Não foi possível sair da conta.');break}
+      await setCloudUser(null);
+      break;
+    }
+    case 'cloud-sync':syncCloudNow();break;
+    case 'cloud-migrate':copyLocalDataToCloud();break;
+    case 's-export':exportBackup();break;
+    case 's-wipe':wipeAll();break;
+    case 'f-close':dlgForm.close();break;
+    case 'f-save':saveForm();break;
+    case 'f-tab':switchTab(el.dataset.t);break;
+    case 'rm-img':F.imgs.splice(+el.dataset.i,1);renderPrevs();break;
+    case 'rm-file':F.files.splice(+el.dataset.i,1);renderPrevs();break;
+    case 'd-close':dlgDrawer.close();break;
+    case 'd-save':saveDrawer();break;
+    case 'd-del':deleteDrawer();break;
+    case 'pick-herb':D.herb=+el.dataset.i;renderHerbs();break;
+    case 'c-yes':confirmDone(true);break;
+    case 'c-no':confirmDone(false);break;
+    case 'w-ok':closeWelcome(true);break;
+    case 'w-skip':closeWelcome(false);break;
+    case 'v-close':dlgView.close();break;
+    case 'v-prev':stepViewer(-1);break;
+    case 'v-next':stepViewer(1);break;
+    case 'v-fav':{
+      const it=getItem(V.id);if(!it)break;
+      it.fav=!it.fav;
+      try{await saveItem(it)}catch(err){console.error(err)}
+      renderViewer();
+      const keep=$('#app .card[data-id="'+it.id+'"]');
+      if(keep){const t=document.createElement('template');t.innerHTML=cardHTML(it,{showDrawer:keep.dataset.sd==='1'});keep.replaceWith(t.content.firstElementChild)}
+      toast(it.fav?'Item selado.':'Selo removido.');
+      break;
+    }
+    case 'v-edit':{const it=getItem(V.id);if(it){dlgView.close();openForm({edit:it})}break}
+    case 'v-del':{
+      const it=getItem(V.id);if(!it)break;
+      const ok=await askConfirm('Excluir este item?','“'+labelOf(it)+'” será apagado e não poderá ser recuperado.','Excluir');
+      if(!ok)break;
+      try{
+        const i=V.list.indexOf(it.id);
+        await removeItem(it.id);
+        V.list=V.list.filter(x=>x!==it.id);
+        render();toast('Item excluído.');
+        if(V.list.length){V.id=V.list[Math.min(i,V.list.length-1)];renderViewer()}else dlgView.close();
+      }catch(err){console.error(err);toast('Não foi possível excluir.')}
+      break;
+    }
+    case 'v-dl':{
+      const it=getItem(V.id);if(!it)break;
+      try{
+        const rec=await getItemBlob(it.id);
+        if(!rec){toast('O arquivo original não foi encontrado.');break}
+        const name=it.type==='image'?((it.fileName||'imagem').replace(/\.[^.]+$/,'')+'.'+extOf(rec.blob.type||it.mime)):(it.fileName||'arquivo');
+        await saveFile(name,rec.blob);
+      }catch(err){console.error(err);toast('Não foi possível baixar.')}
+      break;
+    }
+  }
+});
+
+document.addEventListener('keydown',e=>{
+  if((e.key==='Enter')&&e.target.classList&&e.target.classList.contains('card')){openViewer(e.target.dataset.id);return}
+  if(dlgView.open&&!dlgConfirm.open&&(e.key==='ArrowLeft'||e.key==='ArrowRight')&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)){stepViewer(e.key==='ArrowLeft'?-1:1)}
+  if(e.key==='Enter'&&e.target.id==='dName'){e.preventDefault();saveDrawer()}
+  if(e.key==='Enter'&&e.target.id==='wName'){e.preventDefault();closeWelcome(true)}
+  if(e.key==='Enter'&&(e.target.id==='fUrl'||e.target.id==='fLinkTitle'||e.target.id==='fCaption'||e.target.id==='fNoteTitle'||e.target.id==='fListTitle')){e.preventDefault();saveForm()}
+  if(e.key==='Escape'&&e.target.id==='q'&&S.q){S.q='';e.target.value='';render()}
+});
+
+let qT;
+$('#q').addEventListener('input',e=>{
+  clearTimeout(qT);
+  qT=setTimeout(()=>{S.q=e.target.value;render()},130);
+});
+
+['dlgSettings'].forEach(id=>{const d=$('#'+id);d.addEventListener('click',e=>{if(e.target===d)d.close()})});
+
+/* colar imagens */
+document.addEventListener('paste',e=>{
+  const files=[...(e.clipboardData?e.clipboardData.files:[])];
+  if(!files.length)return;
+  if(dlgForm.open&&F.mode==='add'){addFiles(files,F.type);e.preventDefault()}
+  else if(!document.querySelector('dialog[open]')&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){openForm({files});e.preventDefault()}
+});
+
+/* arrastar e soltar */
+let dragN=0;
+const veil=$('#veil');
+const hasFiles=e=>e.dataTransfer&&[...e.dataTransfer.types].includes('Files');
+window.addEventListener('dragenter',e=>{if(hasFiles(e)){dragN++;veil.classList.add('on')}});
+window.addEventListener('dragleave',e=>{if(hasFiles(e)){dragN=Math.max(0,dragN-1);if(!dragN)veil.classList.remove('on')}});
+window.addEventListener('dragover',e=>{if(hasFiles(e))e.preventDefault()});
+window.addEventListener('drop',e=>{
+  if(!hasFiles(e))return;
+  e.preventDefault();dragN=0;veil.classList.remove('on');
+  const files=e.dataTransfer.files;if(!files.length)return;
+  if(dlgForm.open&&F.mode==='add')addFiles(files,F.type);
+  else if(!document.querySelector('dialog[open]'))openForm({files});
+});
+
+/* ---------- início ---------- */
+hydrateIcons();
+applyTheme(document.documentElement.getAttribute('data-theme')||'auto');
+window.addEventListener('online',()=>{if(S.user&&S.cloudPending)syncCloudNow()});
+(async()=>{
+  await load();
+  applyTheme(S.theme);
+  if(cloud){
+    try{
+      const {data,error}=await cloud.auth.getSession();
+      if(error)throw error;
+      if(data.session?.user)await setCloudUser(data.session.user);
+    }catch(error){
+      console.error(error);
+      S.cloudError=error.message||'Não foi possível verificar a sessão.';
+    }
+  }
+  render();
+  updateCloudStatus();
+  try{
+    const welcomed=(await store.get('meta','welcomed'))?.v;
+    if(!S.name&&!welcomed){dlgWelcome.showModal();$('#wName').focus()}
+  }catch(e){}
+})();
+})();
+</script>
+<script>
+(function(){
+  "use strict";
+  const container=document.querySelector(".petals");
+  if(!container||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+
+  const TOTAL=26;
+  const rand=(a,b)=>Math.random()*(b-a)+a;
+
+  function createPetal(){
+    const p=document.createElement("span");
+    p.className="petal";
+    p.style.left=rand(0,100)+"vw";
+    p.style.setProperty("--s",rand(8,20)+"px");
+    p.style.setProperty("--dur",rand(11,22)+"s");
+    p.style.setProperty("--delay",rand(-20,0)+"s");
+    p.style.setProperty("--sway",rand(3.5,7)+"s");
+    p.style.setProperty("--spin",rand(5,12)+"s");
+    p.style.setProperty("--sway-x",rand(14,46)+"px");
+    p.style.setProperty("--o",rand(.35,.85));
+    if(Math.random()<.4)p.style.setProperty("--petal-color","var(--petal-color-2)");
+    return p;
+  }
+
+  const frag=document.createDocumentFragment();
+  for(let i=0;i<TOTAL;i++)frag.appendChild(createPetal());
+  container.appendChild(frag);
+
+  document.addEventListener("visibilitychange",()=>{
+    const state=document.hidden?"paused":"running";
+    container.querySelectorAll(".petal").forEach(el=>{el.style.animationPlayState=state});
+  });
+})();
+</script>
+</body>
+</html>
