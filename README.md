@@ -71,6 +71,45 @@ A chave publicável usada pelo navegador **não é um segredo**. A segurança do
 
 Mantenha o RLS habilitado e aplique o schema antes de usar dados reais.
 
+## 🔑 Configuração de login e recuperação de senha
+
+O projeto **não precisa de um backend próprio** para login, cadastro ou recuperação de senha. O Supabase Auth cuida da autenticação e o PostgreSQL/RLS separa os dados por `auth.uid()`.
+
+No painel do Supabase, em **Authentication → URL Configuration**, adicione como URLs de redirecionamento:
+
+- URL publicada: `https://SEU-DOMINIO/amor.html`
+- Recuperação: `https://SEU-DOMINIO/recuperar-senha.html`
+- Desenvolvimento: `http://localhost:8000/amor.html`
+- Recuperação local: `http://localhost:8000/recuperar-senha.html`
+
+Troque `SEU-DOMINIO` pelo domínio real usado no Vercel.
+
+### E-mails de confirmação e recuperação
+
+Se o projeto estiver configurado para exigir confirmação de e-mail, o Supabase precisa conseguir enviar os e-mails. Para produção, configure um provedor SMTP em **Authentication → SMTP Settings** e confira o remetente e os registros de autenticação do domínio.
+
+O código do projeto trata separadamente:
+
+- conta ainda não confirmada;
+- senha incorreta;
+- e-mail já cadastrado;
+- limite de envio de e-mails;
+- erro de conexão;
+- link de recuperação expirado ou inválido.
+
+### Separação das contas
+
+Cada conta usa seu próprio `auth.uid()`. As tabelas pessoais possuem RLS:
+
+- `apo_gavetas` → somente o próprio usuário;
+- `apo_itens` → somente o próprio usuário;
+- `apo_perfis` → somente o próprio usuário;
+- Storage → somente arquivos pertencentes ao usuário ou ao casal do qual ele participa.
+
+O espaço do casal usa `couple_id` e só pode ser acessado por membros daquele casal.
+
+**Importante:** depois de alterar `supabase-schema.sql`, execute novamente o SQL no projeto Supabase. Alterar o arquivo no GitHub, sozinho, não altera o banco que já está hospedado no Supabase.
+
 ## 👥 Espaço compartilhado
 
 Cada pessoa deve usar sua própria conta. Para criar um espaço compartilhado:
