@@ -1771,7 +1771,6 @@ async function cloudAuth(action){
   if(result.error)throw result.error;
   $('#cloudPassword').value='';
   setCloudAuthMessage('');
-  if(result.data.user)await setCloudUser(result.data.user);
 }
 async function resendSignupEmail(){
   if(!cloud){updateCloudStatus();return}
@@ -1798,13 +1797,12 @@ async function updateRecoveredPassword(){
   if(!password||!confirmation){setCloudAuthMessage('Preencha os dois campos de senha.',true);return}
   if(password.length<6){setCloudAuthMessage('A nova senha precisa ter pelo menos 6 caracteres.',true);return}
   if(password!==confirmation){setCloudAuthMessage('As senhas não são iguais. Confira os dois campos.',true);$('#cloudConfirmPassword').focus();return}
-  const {data,error}=await cloud.auth.updateUser({password});
+  const {error}=await cloud.auth.updateUser({password});
   if(error)throw error;
   $('#cloudNewPassword').value='';
   $('#cloudConfirmPassword').value='';
   setPasswordRecoveryMode(false);
   setCloudAuthMessage('Senha alterada. Você já pode entrar com a nova senha.');
-  if(data.user)await setCloudUser(data.user);
 }
 async function wipeAll(){
   const location=S.user?'deste aparelho e da sua conta na nuvem':'deste aparelho';
