@@ -64,7 +64,7 @@
     const backLink=document.querySelector("#backToSite");
     const eyeOpen='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
     const eyeClosed='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c5.2 0 9 5.3 10 7-.4.7-1.4 2-2.8 3.3M6.2 6.2C3.9 7.7 2.5 10 2 12c1 1.7 4.8 7 10 7 1.1 0 2.1-.2 3-.6"/></svg>';
-    let client=null,recoveryReady=false,completed=false;
+    let client=null,recoveryReady=false,completed=false,recoveryTimer=null;
     function setStatus(message,type=""){
       statusBox.textContent=message;
       statusBox.className="status"+(type?" "+type:"");
@@ -127,14 +127,21 @@
       }
       try{
         client=window.supabase.createClient(config.url,config.anonKey);
-        client.auth.onAuthStateChange(event=>{
-          if(event==="PASSWORD_RECOVERY")showRecoveryForm();
+        client.auth.onAuthStateChange((event,session)=>{
+          if(event==="PASSWORD_RECOVERY" && session?.user){
+            clearTimeout(recoveryTimer);
+            showRecoveryForm();
+          }
         });
-        const {error}=await client.auth.getSession();
+        const {data,error}=await client.auth.getSession();
         if(error)throw error;
-        setTimeout(()=>{
-          if(!recoveryReady&&!completed)setStatus("Este link de recuperação não é válido ou expirou. Volte ao site e solicite outro link.","error");
-        },1200);
+        if(data?.session?.user){
+          const hash=window.location.hash||"";
+          if(/type=recovery/i.test(hash))showRecoveryForm();
+        }
+        recoveryTimer=setTimeout(()=>{
+          if(!recoveryReady&&!completed)setStatus("Este link de recuperação não é válido, expirou ou já foi usado. Volte ao site e solicite outro link.","error");
+        },8000);
       }catch(error){
         console.error(error);
         setStatus(authError(error),"error");
