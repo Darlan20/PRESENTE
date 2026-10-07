@@ -1,43 +1,116 @@
-# Nosso Cantinho
+# 💚 Nosso Cantinho
 
-Um site estático para guardar lembranças, imagens, anotações, listas, links e arquivos. Os dados podem ficar somente neste navegador ou sincronizar com uma conta Supabase.
+Um espaço privado e delicado para guardar lembranças, imagens, anotações, listas, links e arquivos.
 
-## Abrir o site
+O projeto funciona **sem conta**, salvando os dados no navegador, e também pode usar **Supabase** para autenticação e sincronização em nuvem. Contas diferentes mantêm seus conteúdos separados e existe um espaço compartilhado opcional para duas pessoas.
 
-Para testar localmente, abra um terminal nesta pasta e execute:
+## ✨ Recursos
+
+- 🗂️ Gavetas personalizadas para organizar conteúdos.
+- 🖼️ Imagens, 📝 anotações, 📋 listas, 🔗 links e 📎 arquivos.
+- 🔎 Busca por gavetas, itens e extensões.
+- 🌙 Tema claro/escuro.
+- 💾 Uso local sem necessidade de cadastro.
+- ☁️ Login e sincronização com Supabase.
+- 👥 Espaço compartilhado entre duas contas.
+- 🔐 Políticas de Row Level Security (RLS) para separar os dados.
+- 📦 Armazenamento privado de arquivos no Supabase Storage.
+- 🔑 Recuperação e redefinição de senha.
+- 📱 Interface responsiva e acessível.
+
+## 🧰 Tecnologias
+
+- HTML5
+- CSS3
+- JavaScript
+- Supabase Auth
+- Supabase Database (PostgreSQL)
+- Supabase Storage
+- Vercel
+
+O projeto é intencionalmente simples e não depende de um framework de frontend.
+
+## 🚀 Executar localmente
+
+Na pasta do projeto:
 
 ```powershell
 py -m http.server 8000
 ```
 
-Depois acesse <http://localhost:8000>. A página inicial encaminha para `amor.html`. Também é possível abrir `amor.html` diretamente, mas executar por `localhost` é necessário para que o navegador permita salvar dados localmente.
+Abra:
 
-## Configurar o Supabase
+```
+http://localhost:8000
+```
 
-1. Crie um projeto Supabase e execute nele o conteúdo de `supabase-schema.sql`.
-2. Em **Authentication → URL Configuration**, configure a URL do site e inclua as URLs locais de desenvolvimento, como `http://localhost:8000/**`.
-3. Edite `amor-config.js` com a URL do projeto e a chave publicável (anon/publishable).
-4. Publique o conteúdo desta pasta em um host de site estático. O `vercel.json` encaminha a rota `/` para `amor.html`.
+A página inicial encaminha para `amor.html`.
 
-A chave publicável é destinada ao navegador. Não coloque uma chave `service_role` ou outro segredo neste site. Mantenha as políticas de Row Level Security (RLS) habilitadas e aplique o schema fornecido antes de usar contas e sincronização.
+> Use um servidor local em vez de abrir o HTML diretamente com `file://`. Isso evita limitações do navegador com recursos locais e integrações web.
 
-Sem conta, o site salva os dados localmente neste navegador. Esses dados não são sincronizados entre dispositivos; use uma conta para manter uma cópia na nuvem.
+## ☁️ Configurar o Supabase
 
-### Configurar o envio dos e-mails de confirmação
+1. Crie um projeto no Supabase.
+2. Execute o conteúdo de `supabase-schema.sql` no SQL Editor.
+3. Em **Authentication → URL Configuration**, configure a URL publicada e as URLs locais necessárias.
+4. Confira as configurações de e-mail em **Authentication** se quiser confirmação de cadastro e recuperação de senha.
+5. Edite `amor-config.js` com a URL do projeto e a chave **publicável** (publishable/anon).
+6. Publique os arquivos em um host estático, como Vercel.
 
-Se o cadastro mostrar `Error sending confirmation email`, o Supabase recebeu a solicitação, mas não conseguiu enviar a mensagem. No painel do projeto, abra **Authentication → SMTP Settings**, habilite o SMTP personalizado e informe os dados SMTP do provedor de e-mail, incluindo host, porta, usuário, senha e endereço/nome do remetente. O endereço do remetente deve ser autorizado pelo provedor; configure SPF/DKIM para o domínio quando o provedor solicitar. Salve e teste o cadastro novamente.
+### 🔐 Sobre a chave do Supabase
 
-O SMTP de teste padrão do Supabase pode ter restrições de destinatários e limites de envio; para enviar confirmações aos e-mails de vocês, configure um provedor SMTP próprio. Em seguida, confira também **Authentication → URL Configuration** para garantir que a URL local ou publicada está em **Redirect URLs**. Se o cadastro já foi tentado, não repita o cadastro várias vezes: após corrigir o SMTP, use **Entrar** ou reenvie o e-mail de confirmação para esse mesmo endereço.
+A chave publicável usada pelo navegador **não é um segredo**. A segurança dos dados depende principalmente das políticas de RLS e das regras do Storage.
 
-## Perfis e espaço compartilhado
+**Nunca coloque neste repositório:**
 
-Cada pessoa deve criar e usar a própria conta. O conteúdo do perfil pessoal continua privado. Para criar um espaço do casal, uma pessoa gera um convite em **Ajustes → Um cantinho só de vocês** e envia o código à outra; a segunda pessoa entra com a própria conta e aceita o convite. O código expira em 7 dias e só pode ser usado uma vez.
+- `service_role`;
+- chaves secretas;
+- senhas;
+- tokens administrativos;
+- credenciais SMTP.
 
-Depois da conexão, **Meu espaço** e **Nosso espaço** permitem alternar entre as gavetas pessoais e as gavetas compartilhadas. Tudo que for criado no espaço compartilhado pode ser visto, editado e excluído por ambos; o conteúdo pessoal não é copiado nem compartilhado automaticamente. Para usar esse recurso, aplique novamente `supabase-schema.sql` no Supabase antes de conectar os perfis.
+Mantenha o RLS habilitado e aplique o schema antes de usar dados reais.
 
-## Arquivos principais
+## 👥 Espaço compartilhado
 
-- `amor.html` e `amor.css`: aplicação e estilos.
-- `amor-config.js`: configuração pública do Supabase.
-- `recuperar-senha.html`: fluxo de redefinição de senha.
-- `supabase-schema.sql`: tabelas, políticas e armazenamento necessários à sincronização.
+Cada pessoa deve usar sua própria conta. Para criar um espaço compartilhado:
+
+1. Entre na sua conta.
+2. Abra **Ajustes → Um cantinho só de vocês**.
+3. Gere um convite.
+4. Envie o código para a outra pessoa.
+5. A outra pessoa entra com a própria conta e aceita o convite.
+
+O convite expira em 7 dias e pode ser usado uma única vez.
+
+O conteúdo pessoal continua separado. Apenas o espaço compartilhado fica acessível às duas contas.
+
+## 📁 Estrutura principal
+
+| Arquivo | Função |
+|---|---|
+| `amor.html` | Aplicação principal |
+| `amor.css` | Estilos e responsividade |
+| `amor-config.js` | Configuração pública do Supabase |
+| `recuperar-senha.html` | Redefinição de senha |
+| `supabase-recovery-email.html` | Modelo/fluxo relacionado à recuperação |
+| `supabase-schema.sql` | Banco, RLS, funções e Storage |
+| `index.html` | Entrada do site |
+| `vercel.json` | Configuração de rotas e cabeçalhos |
+| `favicon.svg` | Ícone do site |
+
+## 🛡️ Privacidade
+
+O projeto foi pensado para armazenar conteúdo pessoal. Por isso, a aplicação evita indexação por mecanismos de busca e o bucket de arquivos do Supabase é privado.
+
+Mesmo assim, **não trate a aplicação como um cofre para informações altamente sensíveis**. Revise as políticas do Supabase e faça backups dos dados importantes.
+
+## 📌 Desenvolvimento
+
+Antes de alterar o schema ou as regras de acesso, faça um backup e teste em um projeto Supabase separado quando possível.
+
+Para alterações de frontend, mantenha o projeto compatível com hospedagem estática e preserve a acessibilidade dos controles, diálogos e formulários.
+
+---
+
+Feito com carinho para guardar pequenos momentos. 💚
