@@ -1722,6 +1722,8 @@ function passwordEyeIcon(showing){
 function cloudAuthErrorMessage(error){
   const message=String(error?.message||'').toLowerCase();
   const code=String(error?.code||'').toLowerCase();
+  if(/error sending confirmation email|error sending email|failed to send.*(confirmation|email)|smtp/.test(message+' '+code))
+    return 'O Supabase não conseguiu enviar o e-mail de confirmação. Configure um servidor SMTP em Authentication → SMTP Settings no painel do Supabase e confira o remetente e os registros SPF/DKIM. Depois, tente entrar ou reenviar a confirmação; não cadastre o mesmo e-mail novamente.';
   if(/email not confirmed|email_not_confirmed/.test(message+' '+code))
     return 'Este e-mail ainda não foi confirmado. Confira sua caixa de entrada e a pasta de spam; você também pode pedir outro link de confirmação.';
   if(/invalid login credentials|invalid_credentials|user not found|email not found/.test(message+' '+code))

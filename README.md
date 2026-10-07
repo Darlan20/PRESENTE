@@ -23,6 +23,12 @@ A chave publicável é destinada ao navegador. Não coloque uma chave `service_r
 
 Sem conta, o site salva os dados localmente neste navegador. Esses dados não são sincronizados entre dispositivos; use uma conta para manter uma cópia na nuvem.
 
+### Configurar o envio dos e-mails de confirmação
+
+Se o cadastro mostrar `Error sending confirmation email`, o Supabase recebeu a solicitação, mas não conseguiu enviar a mensagem. No painel do projeto, abra **Authentication → SMTP Settings**, habilite o SMTP personalizado e informe os dados SMTP do provedor de e-mail, incluindo host, porta, usuário, senha e endereço/nome do remetente. O endereço do remetente deve ser autorizado pelo provedor; configure SPF/DKIM para o domínio quando o provedor solicitar. Salve e teste o cadastro novamente.
+
+O SMTP de teste padrão do Supabase pode ter restrições de destinatários e limites de envio; para enviar confirmações aos e-mails de vocês, configure um provedor SMTP próprio. Em seguida, confira também **Authentication → URL Configuration** para garantir que a URL local ou publicada está em **Redirect URLs**. Se o cadastro já foi tentado, não repita o cadastro várias vezes: após corrigir o SMTP, use **Entrar** ou reenvie o e-mail de confirmação para esse mesmo endereço.
+
 ## Perfis e espaço compartilhado
 
 Cada pessoa deve criar e usar a própria conta. O conteúdo do perfil pessoal continua privado. Para criar um espaço do casal, uma pessoa gera um convite em **Ajustes → Um cantinho só de vocês** e envia o código à outra; a segunda pessoa entra com a própria conta e aceita o convite. O código expira em 7 dias e só pode ser usado uma vez.
