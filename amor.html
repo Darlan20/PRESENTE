@@ -2102,8 +2102,18 @@ window.addEventListener('online',()=>{if(S.user&&S.cloudPending)syncCloudNow()})
   applyTheme(S.theme);
   if(cloud){
     try{
-      cloud.auth.onAuthStateChange(event=>{
-        if(event==='PASSWORD_RECOVERY')setPasswordRecoveryMode(true);
+      cloud.auth.onAuthStateChange((event,session)=>{
+        if(event==='PASSWORD_RECOVERY'){
+          setPasswordRecoveryMode(true);
+          return;
+        }
+        if(event==='SIGNED_OUT'){
+          setTimeout(()=>setCloudUser(null),0);
+          return;
+        }
+        if((event==='SIGNED_IN'||event==='USER_UPDATED')&&session?.user){
+          setTimeout(()=>setCloudUser(session.user),0);
+        }
       });
       const {data,error}=await cloud.auth.getSession();
       if(error)throw error;
