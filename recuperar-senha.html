@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#171f1b">
+  <title>Redefinir senha · Nosso Cantinho</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="amor-config.js"></script>
+  <style>
+    :root{color-scheme:dark;--bg:#101713;--surface:#171f1b;--line:#33443a;--ink:#eee9da;--muted:#a4afa7;--jade:#65ae99;--on-jade:#102019;--danger:#e3a19b}
+    *{box-sizing:border-box}
+    body{min-height:100vh;margin:0;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% 0%,#293b32 0,transparent 55%),var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",system-ui,sans-serif}
+    main{width:min(100%,460px);padding:clamp(22px,6vw,38px);border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--surface) 94%,transparent);box-shadow:0 24px 70px #0005}
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+    .brand img{width:42px;height:42px}
+    .brand strong{font:600 1.35rem Georgia,serif}
+    h1{margin:0 0 8px;font:600 1.7rem Georgia,serif}
+    .intro{margin:0 0 22px;color:var(--muted)}
+    form{display:grid;gap:16px}
+    label{display:grid;gap:7px;font-weight:600}
+    .password{position:relative;display:flex;align-items:center}
+    input{width:100%;min-height:48px;padding:10px 52px 10px 12px;border:1px solid var(--line);border-radius:8px;background:#101713;color:var(--ink);font:inherit}
+    input:focus{outline:2px solid var(--jade);outline-offset:2px}
+    .eye{position:absolute;right:4px;display:grid;place-items:center;width:42px;height:40px;border:0;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer}
+    .eye:hover{background:#65ae991c;color:var(--ink)}
+    .eye svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .hint{margin:-10px 0 0;color:var(--muted);font-size:.88rem}
+    button.primary,.back{display:flex;align-items:center;justify-content:center;min-height:48px;padding:10px 16px;border:1px solid var(--jade);border-radius:8px;background:var(--jade);color:var(--on-jade);font:inherit;font-weight:700;text-align:center;text-decoration:none;cursor:pointer}
+    button.primary:hover,.back:hover{filter:brightness(1.08)}
+    button.primary:disabled{opacity:.65;cursor:wait}
+    [hidden]{display:none!important}
+    .status{margin:18px 0 0;padding:12px;border:1px solid var(--line);border-radius:8px;color:var(--muted);overflow-wrap:anywhere}
+    .status.error{border-color:color-mix(in srgb,var(--danger) 60%,var(--line));color:var(--danger)}
+    .status.success{border-color:color-mix(in srgb,var(--jade) 60%,var(--line));color:var(--ink)}
+    @media(prefers-reduced-motion:no-preference){main{animation:arrive .35s ease-out}}
+    @keyframes arrive{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand"><img src="favicon.svg" alt=""><strong>Nosso Cantinho</strong></div>
+    <h1>Crie uma nova senha</h1>
+    <p class="intro">Escolha uma senha nova para voltar à sua conta.</p>
+    <form id="resetForm" hidden novalidate>
+      <label for="newPassword">Nova senha
+        <span class="password"><input id="newPassword" type="password" autocomplete="new-password" minlength="6" required placeholder="Pelo menos 6 caracteres"><button class="eye" type="button" data-toggle="newPassword" aria-label="Mostrar nova senha" aria-pressed="false"></button></span>
+      </label>
+      <label for="confirmPassword">Confirme a nova senha
+        <span class="password"><input id="confirmPassword" type="password" autocomplete="new-password" minlength="6" required placeholder="Digite novamente a nova senha"><button class="eye" type="button" data-toggle="confirmPassword" aria-label="Mostrar confirmação da senha" aria-pressed="false"></button></span>
+      </label>
+      <p class="hint">Use pelo menos 6 caracteres.</p>
+      <button class="primary" id="savePassword" type="submit">Salvar nova senha</button>
+    </form>
+    <p class="status" id="status" role="status" aria-live="polite">Validando o link de recuperação…</p>
+    <a class="back" id="backToSite" href="amor.html" hidden>Voltar ao Nosso Cantinho</a>
+  </main>
+  <script>
+    "use strict";
+    const form=document.querySelector("#resetForm");
+    const statusBox=document.querySelector("#status");
+    const saveButton=document.querySelector("#savePassword");
+    const backLink=document.querySelector("#backToSite");
+    const eyeOpen='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+    const eyeClosed='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c5.2 0 9 5.3 10 7-.4.7-1.4 2-2.8 3.3M6.2 6.2C3.9 7.7 2.5 10 2 12c1 1.7 4.8 7 10 7 1.1 0 2.1-.2 3-.6"/></svg>';
+    let client=null,recoveryReady=false,completed=false;
+    function setStatus(message,type=""){
+      statusBox.textContent=message;
+      statusBox.className="status"+(type?" "+type:"");
+    }
+    function authError(error){
+      const message=String(error?.message||"").toLowerCase();
+      if(/expired|invalid.*(token|otp)|token.*(invalid|expired)/.test(message))
+        return "Este link expirou ou já foi usado. Solicite outro link de redefinição no site.";
+      if(/password.*(short|least|characters)|weak_password/.test(message))
+        return "A senha não atende ao mínimo exigido. Use pelo menos 6 caracteres.";
+      if(/failed to fetch|network|fetch error/.test(message))
+        return "Não foi possível conectar ao serviço de contas. Verifique sua internet e tente novamente.";
+      return error?.message||"Não foi possível redefinir a senha. Solicite um novo link e tente novamente.";
+    }
+    function showRecoveryForm(){
+      if(recoveryReady||completed)return;
+      recoveryReady=true;
+      form.hidden=false;
+      setStatus("Link validado. Digite e confirme sua nova senha.","success");
+      document.querySelector("#newPassword").focus();
+    }
+    document.querySelectorAll(".eye").forEach(button=>{
+      button.innerHTML=eyeOpen;
+      button.addEventListener("click",()=>{
+        const input=document.getElementById(button.dataset.toggle);
+        const visible=input.type==="password";
+        input.type=visible?"text":"password";
+        button.setAttribute("aria-pressed",String(visible));
+        button.setAttribute("aria-label",(visible?"Ocultar ":"Mostrar ")+(input.id==="newPassword"?"nova senha":"confirmação da senha"));
+        button.innerHTML=visible?eyeClosed:eyeOpen;
+      });
+    });
+    form.addEventListener("submit",async event=>{
+      event.preventDefault();
+      if(!client||!recoveryReady||completed)return;
+      const password=document.querySelector("#newPassword").value;
+      const confirmation=document.querySelector("#confirmPassword").value;
+      if(password.length<6){setStatus("A nova senha precisa ter pelo menos 6 caracteres.","error");return}
+      if(password!==confirmation){setStatus("As senhas não são iguais. Confira os dois campos.","error");document.querySelector("#confirmPassword").focus();return}
+      saveButton.disabled=true;
+      setStatus("Salvando sua nova senha…");
+      try{
+        const {error}=await client.auth.updateUser({password});
+        if(error)throw error;
+        completed=true;
+        form.hidden=true;
+        backLink.hidden=false;
+        setStatus("Senha alterada com sucesso. Agora você já pode entrar com a nova senha.","success");
+      }catch(error){
+        console.error(error);
+        setStatus(authError(error),"error");
+        saveButton.disabled=false;
+      }
+    });
+    (async()=>{
+      const config=window.APO_SUPABASE_CONFIG||{};
+      if(!window.supabase||!config.url||!config.anonKey){
+        setStatus("Não foi possível carregar a configuração do serviço de contas. Tente novamente mais tarde.","error");
+        return;
+      }
+      try{
+        client=window.supabase.createClient(config.url,config.anonKey);
+        client.auth.onAuthStateChange(event=>{
+          if(event==="PASSWORD_RECOVERY")showRecoveryForm();
+        });
+        const {error}=await client.auth.getSession();
+        if(error)throw error;
+        setTimeout(()=>{
+          if(!recoveryReady&&!completed)setStatus("Este link de recuperação não é válido ou expirou. Volte ao site e solicite outro link.","error");
+        },1200);
+      }catch(error){
+        console.error(error);
+        setStatus(authError(error),"error");
+      }
+    })();
+  </script>
+</body>
+</html>

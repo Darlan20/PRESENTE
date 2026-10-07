@@ -8,7 +8,7 @@
 <meta property="og:title" content="Nosso Cantinho">
 <meta property="og:description" content="Um cantinho especial para guardar lembranças, imagens, anotações, listas, links e arquivos.">
 <meta property="og:type" content="website">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@400;600;700&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@ try{var t=localStorage.getItem('apo-theme');if(t==='clean'){t='light';localStora
 <div class="petals" aria-hidden="true"></div>
 <header class="top">
   <div class="top-in">
-    <button class="brand" data-act="home" aria-label="Voltar ao armário"><span class="seal" lang="ja">薬</span><span class="brand-t">Nosso Cantinho</span></button>
+    <button class="brand" data-act="home" aria-label="Voltar ao armário"><span class="seal brand-mark" aria-hidden="true"><svg viewBox="0 0 64 64"><path class="brand-heart" d="M48 5c-4.4 0-8.4 1.8-11.3 4.7L32 14.3l-4.7-4.6C24.4 6.8 20.4 5 16 5 7.2 5 0 12.2 0 21c0 4.4 2.9 8.5 5.8 11.4l23.4 23.5c1.6 1.5 4.1 1.5 5.7 0l23.4-23.4C61.1 29.6 64 25.4 64 21 64 12.2 56.8 5 48 5z"/><path class="brand-heart-accent" d="M32 47.4 11.4 26.8C9.9 25.3 8 23.2 8 21c0-4.4 3.6-8 8-8 2.2 0 4.2.9 5.7 2.3l7.5 7.5c1.5 1.5 4.1 1.5 5.7 0l7.5-7.5C43.8 13.9 45.8 13 48 13c4.4 0 8 3.6 8 8 0 2.2-1.9 4.3-3.4 5.8z"/></svg></span><span class="brand-t">Nosso Cantinho</span></button>
     <label class="search"><span class="sr">Buscar gavetas, itens ou extensões</span><span data-icon="search"></span><input id="q" type="search" placeholder="Buscar gaveta, item ou extensão…" autocomplete="off"></label>
     <button class="btn btn-primary hide-sm" data-act="add"><span data-icon="plus"></span>Guardar</button>
     <button class="icon-btn" id="btnTheme" data-act="theme" aria-label="Alternar tema"></button>
@@ -93,13 +93,13 @@ try{var t=localStorage.getItem('apo-theme');if(t==='clean'){t='light';localStora
     <label class="field"><span>Nome da gaveta</span><input type="text" id="dName" maxlength="40" placeholder="Ex.: Receitas, Fanarts, Ideias"></label>
     <label class="field" id="dTypeField"><span>O que esta gaveta vai guardar?</span><select id="dType" required>
       <option value="" disabled selected>Selecione um tipo</option>
-      <option value="all" disabled>Todos os tipos (gaveta antiga)</option>
       <option value="image">Somente imagens</option>
       <option value="note">Somente anotações</option>
-      <option value="list">Somente listas</option>
+      <option value="list">Somente tópicos</option>
+      <option value="note-list">Anotações e tópicos</option>
       <option value="link">Somente links</option>
       <option value="file">Somente arquivos</option>
-    </select><small id="dTypeHelp" class="muted">Gavetas antigas continuam livres. Escolha um tipo para separar os novos itens.</small></label>
+    </select><small id="dTypeHelp" class="muted">Escolha o conteúdo permitido nesta gaveta.</small></label>
     <div class="field"><span>Etiqueta de erva na gaveta</span><div class="herbs" id="herbs"></div></div>
     <p id="dErr" class="err" role="alert" hidden></p>
   </div>
@@ -110,34 +110,51 @@ try{var t=localStorage.getItem('apo-theme');if(t==='clean'){t='light';localStora
 <dialog id="dlgSettings" aria-labelledby="sHead">
   <div class="dlg-bar"><h2 id="sHead">Ajustes</h2><button class="icon-btn" data-act="s-close" aria-label="Fechar"><span data-icon="x"></span></button></div>
   <div class="dlg-body">
-    <div class="field"><span>Seu nome</span><div class="row"><input type="text" id="sName" maxlength="40" aria-label="Seu nome"><button class="btn" data-act="s-name">Salvar nome</button></div></div>
-    <div class="field">
-      <span>Sincronização na nuvem</span>
-      <p id="cloudStatus" class="muted small" role="status"></p>
-      <div id="cloudAuth">
-        <label class="field"><span>E-mail da conta</span><input type="email" id="cloudEmail" autocomplete="email" inputmode="email"></label>
-        <label class="field"><span>Senha</span><input type="password" id="cloudPassword" autocomplete="current-password"></label>
-        <div class="row" id="cloudAuthActions">
-          <button class="btn btn-primary" data-act="cloud-signin">Entrar</button>
-          <button class="btn" data-act="cloud-signup">Criar conta</button>
+    <section class="settings-section">
+      <div class="settings-section-head"><h3>Perfil desta pessoa</h3><p class="muted small">O nome e o avatar ajudam a identificar quem está usando este armário.</p></div>
+      <div class="profile-card" id="profileCard">
+        <span class="profile-avatar" id="profileAvatar" aria-hidden="true">?</span>
+        <span class="profile-identity"><strong id="profileDisplayName">Perfil local</strong><span id="profileAccountEmail">Salvo somente neste aparelho</span></span>
+      </div>
+      <div class="row settings-profile"><input type="text" id="sName" maxlength="40" aria-label="Seu nome" placeholder="Seu nome"><button class="btn" data-act="s-name">Salvar nome</button></div>
+    </section>
+    <section class="settings-section">
+      <div class="settings-section-head"><h3>Contas de cada pessoa</h3><p class="muted small">Cada pessoa deve criar sua própria conta com um e-mail diferente. Gavetas, itens e arquivos ficam separados por conta.</p></div>
+      <p id="cloudStatus" class="status-card muted small" role="status"></p>
+      <div id="cloudAuth" class="auth-card">
+        <div class="auth-switch" role="group" aria-label="Ação da conta">
+          <button class="auth-mode" type="button" data-act="cloud-mode" data-mode="signin" aria-pressed="true">Entrar na minha conta</button>
+          <button class="auth-mode" type="button" data-act="cloud-mode" data-mode="signup" aria-pressed="false">Cadastrar nova conta</button>
         </div>
-        <div class="row" id="cloudAccountActions" hidden>
-          <button class="btn" data-act="cloud-sync">Sincronizar agora</button>
-          <button class="btn" data-act="cloud-signout">Sair da conta</button>
-          <button class="btn btn-primary" data-act="cloud-migrate">Copiar dados deste aparelho para a conta</button>
+        <p id="cloudAuthHelp" class="muted small">Entre com seu e-mail para abrir somente o armário dessa conta. Para outra pessoa, use outro e-mail e cadastre uma conta separada.</p>
+        <label class="field" id="cloudDisplayNameField" hidden><span>Nome para identificar o perfil</span><input type="text" id="cloudDisplayName" maxlength="40" autocomplete="nickname" placeholder="Como devemos chamar você?"></label>
+        <label class="field"><span>E-mail</span><input type="email" id="cloudEmail" autocomplete="email" inputmode="email" autocapitalize="off" placeholder="voce@exemplo.com" required></label>
+        <label class="field"><span>Senha</span><input type="password" id="cloudPassword" autocomplete="current-password" placeholder="Sua senha" required></label>
+        <button class="btn btn-primary auth-submit" id="cloudAuthSubmit" type="button" data-act="cloud-submit">Entrar</button>
+        <button class="linklike" id="cloudForgotPassword" type="button" data-act="cloud-forgot">Esqueceu a senha?</button>
+        <div class="auth-recovery" id="cloudRecovery" hidden>
+          <p class="muted small" id="cloudRecoveryHelp">Abra o link que enviamos ao seu e-mail para definir uma nova senha.</p>
+          <label class="field"><span>Nova senha</span><span class="password-control"><input type="password" id="cloudNewPassword" autocomplete="new-password" minlength="6" placeholder="Digite a nova senha"><button class="password-toggle" type="button" data-act="password-toggle" data-target="cloudNewPassword" aria-label="Mostrar nova senha" aria-pressed="false"></button></span></label>
+          <label class="field"><span>Confirmar nova senha</span><span class="password-control"><input type="password" id="cloudConfirmPassword" autocomplete="new-password" minlength="6" placeholder="Digite novamente a nova senha"><button class="password-toggle" type="button" data-act="password-toggle" data-target="cloudConfirmPassword" aria-label="Mostrar confirmação da senha" aria-pressed="false"></button></span></label>
+          <button class="btn btn-primary auth-submit" type="button" data-act="cloud-update-password">Salvar nova senha</button>
+        </div>
+        <div class="auth-feedback" id="cloudAuthFeedback" hidden>
+          <p id="cloudAuthMessage" role="status" aria-live="polite"></p>
+          <button class="linklike" id="cloudResend" type="button" data-act="cloud-resend" hidden>Reenviar e-mail de confirmação</button>
+          <button class="linklike" id="cloudResendPassword" type="button" data-act="cloud-forgot" hidden>Enviar link de recuperação novamente</button>
         </div>
       </div>
-    </div>
-    <div class="field"><span>Armazenamento</span>
-      <p id="sStorageStatus" class="muted small" role="status"></p>
-      <div class="row"><button class="btn" data-act="s-persist">Proteger dados salvos</button></div>
-    </div>
-    <div class="field"><span>Backup</span>
-      <p class="muted small">Seus dados ficam neste navegador. Para guardar uma cópia ou passar seus dados para outro aparelho, baixe o arquivo de backup. Para recuperar uma cópia, escolha o arquivo que você baixou.</p>
-      <div class="row"><button class="btn" data-act="s-export"><span data-icon="dl"></span>Baixar cópia dos meus dados</button><label class="btn"><input class="sr" type="file" id="sImport" accept=".json,application/json">Carregar uma cópia salva</label></div>
-      <p id="sUsage" class="muted small"></p>
-    </div>
-    <div class="field"><span>Começar do zero</span><div class="row"><button class="btn btn-danger" data-act="s-wipe"><span data-icon="trash"></span>Apagar tudo</button></div></div>
+      <div class="row settings-actions" id="cloudAccountActions" hidden>
+        <button class="btn" data-act="cloud-sync">Sincronizar agora</button>
+        <button class="btn" data-act="cloud-signout">Trocar de usuário / sair</button>
+        <button class="btn btn-primary" data-act="cloud-migrate">Copiar dados deste aparelho para a conta</button>
+      </div>
+      <p class="muted small" id="cloudCopyWarning" hidden>A cópia é opcional. Só copie se os dados salvos neste aparelho pertencem a esta pessoa; eles não são transferidos automaticamente entre contas.</p>
+    </section>
+    <section class="settings-section settings-danger">
+      <div class="settings-section-head"><h3>Começar do zero</h3><p class="muted small">Remove todas as gavetas e itens salvos.</p></div>
+      <div class="row"><button class="btn btn-danger" data-act="s-wipe"><span data-icon="trash"></span>Apagar tudo</button></div>
+    </section>
   </div>
 </dialog>
 
@@ -207,14 +224,37 @@ const TYPES={
  link:{pt:'Link',pl:'Links',ic:'link'},
  file:{pt:'Arquivo',pl:'Arquivos',ic:'file'}
 };
-const drawerContentType=d=>d&&Object.prototype.hasOwnProperty.call(TYPES,d.contentType)?d.contentType:'all';
-const drawerTypeLabel=d=>{
- const type=drawerContentType(d);
- if(type==='all')return 'Todos os tipos';
- if(type==='note')return 'Somente anotações';
- return 'Somente '+TYPES[type].pl.toLowerCase();
+const DEFAULT_DRAWER_TYPES={
+ 'imagens queridas':['image'],
+ 'diario':['note'],
+ 'receitas e ideias':['note','list'],
+ 'links e achados':['link'],
+ 'arquivos':['file']
 };
-const drawerAccepts=(d,type)=>drawerContentType(d)==='all'||drawerContentType(d)===type;
+const DRAWER_TYPE_OPTIONS={
+ image:['image'],
+ note:['note'],
+ list:['list'],
+ 'note-list':['note','list'],
+ link:['link'],
+ file:['file']
+};
+const drawerContentTypes=d=>{
+ if(Array.isArray(d?.contentTypes)){
+   const types=[...new Set(d.contentTypes.filter(type=>Object.prototype.hasOwnProperty.call(TYPES,type)))];
+   return types.length?types:null;
+ }
+ if(Object.prototype.hasOwnProperty.call(TYPES,d?.contentType))return [d.contentType];
+ return null;
+};
+const drawerTypeLabel=d=>{
+ const types=drawerContentTypes(d);
+ if(!types)return 'Todos os tipos';
+ if(types.length===1)return 'Somente '+({image:'imagens',note:'anotações',list:'tópicos',link:'links',file:'arquivos'}[types[0]]);
+ if(types.length===2&&types.includes('note')&&types.includes('list'))return 'Anotações e tópicos';
+ return types.map(type=>TYPES[type].pl).join(' e ');
+};
+const drawerAccepts=(d,type)=>!drawerContentTypes(d)||drawerContentTypes(d).includes(type);
 function assertDrawerAccepts(drawerId,type){
  const d=getDrawer(drawerId);
  if(!d)throw new UserErr('Escolha uma gaveta.');
@@ -352,66 +392,123 @@ const getItem=id=>S.items.find(i=>i.id===id);
 const byNew=(a,b)=>b.created-a.created;
 const currentDrawerId=()=>S.view.k==='drawer'?S.view.id:null;
 let homeEntered=false;
-const romanticLines=[
-  'O meu lugar favorito sempre será ao seu lado.',
-  'Em cada detalhe seu, encontro um motivo para sorrir.',
-  'Que o nosso carinho floresça até nos dias mais comuns.',
-  'Seu abraço transforma qualquer lugar em lar.',
-  'Se eu pudesse escolher de novo, ainda escolheria você.',
-  'Há amor até no silêncio confortável que dividimos.',
-  'Meu coração reconhece o caminho de volta para você.',
-  'Entre tantos caminhos, gosto mais daquele que fazemos juntos.',
-  'Você faz meu mundo caber dentro de um sorriso.',
-  'Amar você é encontrar calma mesmo quando tudo corre depressa.',
-  'Seu jeito deixa mais bonito até o dia mais simples.',
-  'Com você, até a rotina ganha um brilho especial.',
-  'Meu carinho por você cresce em cada pequeno cuidado.',
-  'Seu nome mora nos pensamentos que me fazem bem.',
-  'A vida fica mais leve quando caminhamos lado a lado.',
-  'Você é meu acaso favorito e minha escolha de todos os dias.',
-  'No mapa do meu coração, todos os caminhos levam a você.',
-  'Seu sorriso é uma das minhas paisagens preferidas.',
-  'Gosto de quem sou quando estou perto de você.',
-  'O melhor plano ainda é dividir a vida com você.',
-  'Seu carinho é abrigo nos dias de chuva e festa nos dias de sol.',
-  'Em qualquer lugar, estar com você é estar em casa.',
-  'Você transforma momentos pequenos em lembranças enormes.',
-  'Meu coração fica mais tranquilo quando encontra o seu.',
-  'Entre todas as palavras, ainda escolho dizer: amo você.',
-  'Seu olhar faz o tempo desacelerar por um instante.',
-  'A cada conversa, descubro um novo motivo para gostar de você.',
-  'Você é a parte bonita que aparece mesmo nos dias difíceis.',
-  'Quero colecionar muitos amanhãs ao seu lado.',
-  'O amor se parece com você: gentil, único e cheio de luz.',
-  'Seu abraço é pausa boa no meio da correria.',
-  'Há um pedacinho de felicidade em cada momento que vivemos juntos.',
-  'Você faz meu coração sorrir antes mesmo de eu perceber.',
-  'A melhor distância entre dois corações é um abraço seu.',
-  'Quando penso em carinho, é o seu jeito que me vem à memória.',
-  'Meu dia melhora só de saber que você existe.',
-  'Você é poesia escrita nos detalhes mais simples.',
-  'Que nunca nos falte tempo para rir um com o outro.',
-  'Seu cuidado faz florescer o melhor que existe em mim.',
-  'Eu escolheria mil vezes a paz de estar com você.',
-  'Seu amor colore os espaços que eu nem sabia que estavam vazios.',
-  'Meu coração encontrou em você uma canção que quer repetir.',
-  'Mesmo sem dizer nada, você sabe deixar tudo mais bonito.',
-  'Com você, cada despedida já guarda a alegria do reencontro.',
-  'Quero ser motivo de sorriso no seu dia, assim como você é no meu.',
-  'Seu jeito de existir já é um presente para quem te ama.',
-  'O amor não precisa ser perfeito; basta ser nosso e verdadeiro.',
-  'Você faz o futuro parecer um lugar acolhedor.',
-  'Em cada lembrança feliz, encontro um pouco de nós.',
-  'Seu carinho é uma luz mansa que me acompanha.'
+const loveLines=[
+ 'O meu lugar favorito sempre será ao seu lado.',
+ 'Em cada detalhe seu, encontro um motivo para sorrir.',
+ 'Que o nosso carinho floresça até nos dias mais comuns.',
+ 'Seu abraço transforma qualquer lugar em lar.',
+ 'Se eu pudesse escolher de novo, ainda escolheria você.',
+ 'Há amor até no silêncio confortável que dividimos.',
+ 'Meu coração reconhece o caminho de volta para você.',
+ 'Entre tantos caminhos, gosto mais daquele que fazemos juntos.',
+ 'Você faz meu mundo caber dentro de um sorriso.',
+ 'Amar você é encontrar calma mesmo quando tudo corre depressa.',
+ 'Seu jeito deixa mais bonito até o dia mais simples.',
+ 'Com você, até a rotina ganha um brilho especial.',
+ 'Meu carinho por você cresce em cada pequeno cuidado.',
+ 'Seu nome mora nos pensamentos que me fazem bem.',
+ 'A vida fica mais leve quando caminhamos lado a lado.',
+ 'Você é meu acaso favorito e minha escolha de todos os dias.',
+ 'No mapa do meu coração, todos os caminhos levam a você.',
+ 'Seu sorriso é uma das minhas paisagens preferidas.',
+ 'Gosto de quem sou quando estou perto de você.',
+ 'O melhor plano ainda é dividir a vida com você.',
+ 'Seu carinho é abrigo nos dias de chuva e festa nos dias de sol.',
+ 'Em qualquer lugar, estar com você é estar em casa.',
+ 'Você transforma momentos pequenos em lembranças enormes.',
+ 'Meu coração fica mais tranquilo quando encontra o seu.',
+ 'Entre todas as palavras, ainda escolho dizer: amo você.',
+ 'Seu olhar faz o tempo desacelerar por um instante.',
+ 'A cada conversa, descubro um novo motivo para gostar de você.',
+ 'Você é a parte bonita que aparece mesmo nos dias difíceis.',
+ 'Quero colecionar muitos amanhãs ao seu lado.',
+ 'O amor se parece com você: gentil, único e cheio de luz.',
+ 'Seu abraço é pausa boa no meio da correria.',
+ 'Há um pedacinho de felicidade em cada momento que vivemos juntos.',
+ 'Você faz meu coração sorrir antes mesmo de eu perceber.',
+ 'A melhor distância entre dois corações é um abraço seu.',
+ 'Quando penso em carinho, é o seu jeito que me vem à memória.',
+ 'Meu dia melhora só de saber que você existe.',
+ 'Você é poesia escrita nos detalhes mais simples.',
+ 'Que nunca nos falte tempo para rir um com o outro.',
+ 'Seu cuidado faz florescer o melhor que existe em mim.',
+ 'Eu escolheria mil vezes a paz de estar com você.',
+ 'Seu amor colore os espaços que eu nem sabia que estavam vazios.',
+ 'Meu coração encontrou em você uma canção que quer repetir.',
+ 'Mesmo sem dizer nada, você sabe deixar tudo mais bonito.',
+ 'Com você, cada despedida já guarda a alegria do reencontro.',
+ 'Quero ser motivo de sorriso no seu dia, assim como você é no meu.',
+ 'Seu jeito de existir já é um presente para quem te ama.',
+ 'O amor não precisa ser perfeito; basta ser nosso e verdadeiro.',
+ 'Você faz o futuro parecer um lugar acolhedor.',
+ 'Em cada lembrança feliz, encontro um pouco de nós.',
+ 'Seu carinho é uma luz mansa que me acompanha.'
 ];
-let romanticLineIndex=-1;
+const bibleLines=[
+ ['Que o amor seja sincero e escolha o bem.','Romanos 12:9'],
+ ['O amor sabe esperar e trata o outro com bondade.','1 Coríntios 13:4'],
+ ['O amor não inveja, não se exibe e não se enche de orgulho.','1 Coríntios 13:4'],
+ ['Amar também é agir com respeito e não buscar apenas o próprio interesse.','1 Coríntios 13:5'],
+ ['O amor não se alegra com a injustiça; alegra-se com a verdade.','1 Coríntios 13:6'],
+ ['O amor protege, confia, espera e persevera.','1 Coríntios 13:7'],
+ ['A fé, a esperança e o amor permanecem; o amor é o maior deles.','1 Coríntios 13:13'],
+ ['Façam tudo com amor.','1 Coríntios 16:14'],
+ ['Acima de tudo, revistam-se do amor, que une tudo em harmonia.','Colossenses 3:14'],
+ ['Que a paz de Cristo guie o coração e que o amor una vocês.','Colossenses 3:14-15'],
+ ['Sejam bondosos, compassivos e perdoem uns aos outros.','Efésios 4:32'],
+ ['Vivam em amor, seguindo o exemplo de Cristo.','Efésios 5:2'],
+ ['O amor de Deus nos alcança e nos chama de filhos.','1 João 3:1'],
+ ['Amemos uns aos outros, pois o amor vem de Deus.','1 João 4:7'],
+ ['Quem ama conhece a Deus, porque Deus é amor.','1 João 4:8'],
+ ['Amamos porque Deus nos amou primeiro.','1 João 4:19'],
+ ['Não amemos só com palavras: que o amor apareça em atitudes verdadeiras.','1 João 3:18'],
+ ['Deus é amor; quem vive no amor permanece em Deus.','1 João 4:16'],
+ ['O amor afasta o medo e nos conduz à confiança.','1 João 4:18'],
+ ['O Senhor nos amou com amor eterno e continua a nos atrair com bondade.','Jeremias 31:3'],
+ ['O amor e a fidelidade do Senhor acompanham a vida.','Salmos 23:6'],
+ ['O amor fiel de Deus é melhor que a própria vida.','Salmos 63:3'],
+ ['Deem graças ao Senhor: seu amor leal permanece para sempre.','Salmos 136:1'],
+ ['O Senhor é compassivo, paciente e grande em amor.','Salmos 103:8'],
+ ['O amor verdadeiro é forte e não se apaga com as dificuldades.','Cântico dos Cânticos 8:6-7'],
+ ['O amor é tão precioso quanto um selo guardado junto ao coração.','Cântico dos Cânticos 8:6'],
+ ['Muitas águas não conseguem apagar o amor.','Cântico dos Cânticos 8:7'],
+ ['A pessoa amada é bela e preciosa aos olhos de quem a ama.','Cântico dos Cânticos 1:15'],
+ ['O amor encontra alegria na presença de quem é amado.','Cântico dos Cânticos 2:4'],
+ ['Encontrar quem a alma ama é motivo de alegria.','Cântico dos Cânticos 3:4'],
+ ['Dois caminham melhor quando podem apoiar um ao outro.','Eclesiastes 4:9-10'],
+ ['Se um cair, o outro pode ajudá-lo a se levantar.','Eclesiastes 4:10'],
+ ['O cordão de três fios resiste melhor; juntos somos mais fortes.','Eclesiastes 4:12'],
+ ['A resposta gentil pode acalmar a ira.','Provérbios 15:1'],
+ ['A amizade verdadeira permanece em todos os momentos.','Provérbios 17:17'],
+ ['A palavra amável adoça a vida e traz ânimo ao coração.','Provérbios 16:24'],
+ ['A beleza passa, mas o caráter que honra a Deus merece louvor.','Provérbios 31:30'],
+ ['Deus nos deu espírito de amor, força e equilíbrio.','2 Timóteo 1:7'],
+ ['Sejam humildes, pacientes e suportem uns aos outros com amor.','Efésios 4:2'],
+ ['Suportem-se e perdoem-se; o Senhor também perdoou vocês.','Colossenses 3:13'],
+ ['Alegrem-se com quem se alegra e chorem com quem chora.','Romanos 12:15'],
+ ['Acolham uns aos outros com o mesmo amor com que Cristo acolheu vocês.','Romanos 15:7'],
+ ['A esperança floresce quando o amor de Deus é derramado no coração.','Romanos 5:5'],
+ ['Nada pode nos separar do amor de Deus.','Romanos 8:38-39'],
+ ['Deus demonstra seu amor por nós de forma profunda e generosa.','Romanos 5:8'],
+ ['Amai-vos com carinho fraternal e honrem uns aos outros.','Romanos 12:10'],
+ ['O maior amor se revela ao entregar a vida por quem se ama.','João 15:13'],
+ ['Jesus nos convida a amar uns aos outros como ele nos amou.','João 15:12'],
+ ['Permaneçam no amor: assim a alegria pode ser completa.','João 15:9-11'],
+ ['Bem-aventurados os que promovem a paz: serão chamados filhos de Deus.','Mateus 5:9'],
+ ['Tratem os outros com o mesmo amor e cuidado que desejam receber.','Mateus 7:12']
+].map(([text,reference])=>({text,reference}));
+const inspirationLines=[
+ ...loveLines.map(text=>({text,kind:'love'})),
+ ...bibleLines.map(({text,reference})=>({text,kind:'bible',reference}))
+];
+let inspirationIndex=-1;
 try{
-  const previous=Number(localStorage.getItem('apo-romantic-line'));
-  const choices=romanticLines.map((_,i)=>i).filter(i=>i!==previous);
-  romanticLineIndex=choices[Math.floor(Math.random()*choices.length)];
-  localStorage.setItem('apo-romantic-line',String(romanticLineIndex));
-}catch(e){romanticLineIndex=Math.floor(Math.random()*romanticLines.length)}
-const romanticLine=romanticLines[romanticLineIndex];
+ const previous=Number(localStorage.getItem('apo-romantic-line'));
+ const choices=inspirationLines.map((_,index)=>index).filter(index=>index!==previous);
+ inspirationIndex=choices[Math.floor(Math.random()*choices.length)];
+ localStorage.setItem('apo-romantic-line',String(inspirationIndex));
+}catch(error){inspirationIndex=Math.floor(Math.random()*inspirationLines.length)}
+const inspirationLine=inspirationLines[inspirationIndex];
 
 const urls=new Map();
 function thumbURL(it){
@@ -432,11 +529,12 @@ async function getItemBlob(id){
 
 async function seed(){
   const names=['Imagens queridas','Diário','Receitas e ideias','Links e achados'];
-  const ds=names.map((name,i)=>({id:uid(),name,herb:i,order:i,created:Date.now()}));
+  const types=[['image'],['note'],['note','list'],['link']];
+  const ds=names.map((name,i)=>({id:uid(),name,herb:i,contentTypes:types[i],contentType:types[i][0],order:i,created:Date.now()}));
   for(const d of ds)await store.put('drawers',d);
   S.drawers=ds;
   const note={id:uid(),type:'note',drawer:ds[1].id,title:'Bem-vinda ao seu armário',
-    text:'Este espaço foi feito com carinho para você guardar o que quiser: imagens, anotações, listas, links e arquivos.\n\nCada gaveta é uma coleção. Abra uma, toque em “Guardar aqui” e coloque algo dentro. Você também pode criar novas gavetas e dar o nome que fizer sentido.\n\nSeus itens ficam salvos neste aparelho. Em Ajustes, você baixa um backup quando quiser.\n\nQuando quiser, é só apagar esta nota.',
+    text:'Este espaço foi feito com carinho para você guardar o que quiser: imagens, anotações, listas, links e arquivos.\n\nCada gaveta é uma coleção. Abra uma, toque em “Guardar aqui” e coloque algo dentro. Você também pode criar novas gavetas e dar o nome que fizer sentido.\n\nSem entrar em uma conta, seus itens ficam salvos neste aparelho. Com uma conta, eles sincronizam somente com o e-mail conectado. Em Ajustes, você também pode baixar um backup.\n\nQuando quiser, é só apagar esta nota.',
     fav:true,created:Date.now(),updated:Date.now()};
   await store.put('items',note);
   S.items=[note];
@@ -473,6 +571,46 @@ async function repairDuplicateSeedDrawers(){
   for(const id of replacements.keys())await store.del('drawers',id);
   S.drawers=S.drawers.filter(drawer=>!replacements.has(drawer.id));
 }
+function inferredDrawerTypes(drawer){
+ const named=DEFAULT_DRAWER_TYPES[norm(drawer.name)];
+ if(named)return named;
+ const counts=new Map();
+ S.items.filter(item=>item.drawer===drawer.id).forEach(item=>counts.set(item.type,(counts.get(item.type)||0)+1));
+ const chosen=Object.keys(TYPES).sort((a,b)=>(counts.get(b)||0)-(counts.get(a)||0)).find(type=>counts.has(type));
+ return [chosen||'note'];
+}
+async function ensureDrawerProfiles(){
+ for(const drawer of S.drawers){
+   const types=inferredDrawerTypes(drawer);
+   const current=drawerContentTypes(drawer);
+   if(!current||JSON.stringify(current)!==JSON.stringify(types)){
+     drawer.contentTypes=types;
+     if(types.length===1)drawer.contentType=types[0];
+     else drawer.contentType=types[0];
+     await store.put('drawers',drawer);
+   }
+ }
+ const targetNames={image:'Imagens queridas',note:'Diário',list:'Receitas e ideias',link:'Links e achados',file:'Arquivos'};
+ const destinationFor=async type=>{
+   let target=S.drawers.find(drawer=>norm(drawer.name)===norm(targetNames[type])&&drawerAccepts(drawer,type))
+     ||S.drawers.find(drawer=>drawerAccepts(drawer,type));
+   if(target)return target;
+   target={id:uid(),name:targetNames[type],herb:nextHerb(),contentTypes:[type],contentType:type,order:S.drawers.reduce((max,entry)=>Math.max(max,entry.order),-1)+1,created:Date.now()};
+   await store.put('drawers',target);
+   S.drawers.push(target);
+   return target;
+ };
+ const destinations=new Map();
+ for(const item of S.items){
+   const drawer=getDrawer(item.drawer);
+   if(drawer&&drawerAccepts(drawer,item.type))continue;
+   let destination=destinations.get(item.type);
+   if(!destination){destination=await destinationFor(item.type);destinations.set(item.type,destination)}
+   item.drawer=destination.id;
+   await store.put('items',item);
+ }
+ S.drawers.sort((a,b)=>a.order-b.order);
+}
 async function load(){
   try{idb=await openDB()}catch(e){idb=null;S.persistent=false}
   try{
@@ -486,6 +624,7 @@ async function load(){
     }
     const seeded=(await store.get('meta','seeded'))?.v;
     if(!seeded&&!S.drawers.length)await seed();
+    await ensureDrawerProfiles();
   }catch(e){
     console.error(e);
     idb=null;S.persistent=false;
@@ -540,11 +679,11 @@ async function processImage(file){
 const extOf=m=>({'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif','image/svg+xml':'svg'}[m]||'jpg');
 
 /* ---------- arquivos para baixar ---------- */
-async function saveFile(filename,blob){
+async function saveFile(filename,blob,successMessage='Arquivo salvo.'){
   let dl=null;
   try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
   if(dl){
-    try{await dl.save({filename,data:blob});toast('Arquivo salvo.')}
+    try{await dl.save({filename,data:blob});toast(successMessage)}
     catch(e){
       if(e&&e.code==='declined')return;
       if(e&&(e.code==='rejected_extension'||e.code==='extension_not_enabled'))toast('Este tipo de arquivo não pode ser baixado por aqui.');
@@ -555,6 +694,7 @@ async function saveFile(filename,blob){
   const u=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(u),4000);
+  toast(successMessage);
 }
 
 /* ---------- toast ---------- */
@@ -620,13 +760,13 @@ function cardHTML(it,o={}){
 }
 
 /* ---------- vistas ---------- */
-function drawerHTML(d,i,counts){
+function drawerHTML(d,i,counts,reorderable=false){
   const n=counts[d.id]||0,h=HERBS[d.herb%HERBS.length];
-  return '<div class="slot" style="--i:'+i+'"><button class="drawer" data-act="open-drawer" data-id="'+d.id+'" aria-label="'+esc(d.name)+', '+drawerTypeLabel(d)+', '+plural(n,'item','itens')+'">'
+  return '<div class="slot drawer-slot" data-drawer-id="'+(reorderable?d.id:'')+'" style="--i:'+i+'"><button class="drawer" data-act="open-drawer" data-id="'+d.id+'" aria-label="'+esc(d.name)+', '+drawerTypeLabel(d)+', '+plural(n,'item','itens')+'">'
     +'<span class="plate"><span class="hz" lang="ja">'+h[0]+'</span></span>'
     +'<span class="d-name"><span>'+esc(d.name)+'</span></span>'
     +'<span class="d-kind">'+esc(drawerTypeLabel(d))+'</span>'
-    +'<span class="d-foot"><span class="d-count">'+plural(n,'item','itens')+'</span><span class="pull" aria-hidden="true"></span><span></span></span>'
+    +'<span class="d-foot"><span class="d-count">'+plural(n,'item','itens')+'</span><span class="pull drawer-drag-handle" title="Segure e arraste para reorganizar" aria-hidden="true" draggable="'+reorderable+'"></span><span></span></span>'
     +'</button></div>';
 }
 function viewHome(){
@@ -637,12 +777,13 @@ function viewHome(){
   return (S.persistent?'':'<p class="banner" role="alert">Não foi possível salvar neste navegador (talvez a aba seja privada). Os itens ficam só até você fechar esta página.</p>')
   +'<section class="hero"><div class="hero-text"><h1 tabindex="-1">'+title+'</h1><p>Imagens, anotações, listas, links e arquivos, cada um na gaveta que você escolher.</p></div>'
   +'<div class="hero-art" aria-hidden="true"><span class="vtitle" lang="ja">薬屋のひとりごと</span>'+sprig()+'</div></section>'
-  +'<section class="cab-wrap" aria-label="Gavetas"><div class="cornice" aria-hidden="true"></div><div class="cabinet"><div class="drawers'+(enter?' enter':'')+'">'
-  +S.drawers.map((d,i)=>drawerHTML(d,i,counts)).join('')
+  +'<section class="cab-wrap" aria-label="Gavetas"><div class="drawer-order-bar"><span class="drawer-order-help">Segure o puxador redondo e arraste a gaveta para mudar a ordem.</span></div>'
+  +'<div class="cornice" aria-hidden="true"></div><div class="cabinet"><div class="drawers'+(enter?' enter':'')+'">'
+  +S.drawers.map((d,i)=>drawerHTML(d,i,counts,true)).join('')
   +'<div class="slot new" style="--i:'+S.drawers.length+'"><button class="drawer" data-act="new-drawer">'+icon('plus',26)+'<span>Nova gaveta</span></button></div>'
   +'</div></div></section>'
   +(recents.length?'<h2 class="sec-h">Últimos guardados</h2><div class="grid">'+recents.map(i=>cardHTML(i,{showDrawer:true})).join('')+'</div>':'')
-  +'<footer class="quote" aria-label="Frase romântica para hoje"><span>Uma frase para o coração</span><p>“'+esc(romanticLine)+'”</p></footer>';
+  +'<footer class="quote" aria-label="'+(inspirationLine.kind==='bible'?'Reflexão inspirada na Bíblia':'Frase de amor')+'"><span>'+(inspirationLine.kind==='bible'?'Uma inspiração da Bíblia':'Uma frase para o coração')+'</span><p>“'+esc(inspirationLine.text)+'”</p>'+(inspirationLine.reference?'<small class="quote-source">Inspirada em '+esc(inspirationLine.reference)+'</small>':'')+'</footer>';
 }
 function emptyHTML(h,p,btn){
   return '<div class="empty">'+mortar+'<h2>'+h+'</h2><p>'+p+'</p>'+(btn||'')+'</div>';
@@ -651,13 +792,15 @@ function viewDrawer(){
   const d=getDrawer(S.view.id),h=HERBS[d.herb%HERBS.length];
   const all=S.items.filter(i=>i.drawer===d.id).sort(byNew);
   const chips=[['all','Tudo',all.length]];
-  if(drawerContentType(d)==='all')Object.keys(TYPES).forEach(t=>{const n=all.filter(i=>i.type===t).length;if(n)chips.push([t,TYPES[t].pl,n])});
+  const allowedTypes=drawerContentTypes(d);
+  if(!allowedTypes)Object.keys(TYPES).forEach(t=>{const n=all.filter(i=>i.type===t).length;if(n)chips.push([t,TYPES[t].pl,n])});
+  else if(allowedTypes.length>1)allowedTypes.forEach(t=>{const n=all.filter(i=>i.type===t).length;if(n)chips.push([t,TYPES[t].pl,n])});
   const nf=all.filter(i=>i.fav).length;if(nf)chips.push(['fav','Selados',nf]);
   if(!chips.some(c=>c[0]===S.filter))S.filter='all';
   const list=S.filter==='all'?all:S.filter==='fav'?all.filter(i=>i.fav):all.filter(i=>i.type===S.filter);
-  const emptyDescription=drawerContentType(d)==='all'
+  const emptyDescription=!allowedTypes
     ?'Guarde uma imagem, uma anotação, uma lista, um link ou um arquivo.'
-    :'Guarde '+TYPES[drawerContentType(d)].pl.toLowerCase()+' aqui para manter esta gaveta organizada.';
+    :'Guarde '+(allowedTypes.length===2&&allowedTypes.includes('note')&&allowedTypes.includes('list')?'uma anotação ou um tópico':({image:'uma imagem',note:'uma anotação',list:'um tópico',link:'um link',file:'um arquivo'}[allowedTypes[0]]))+' aqui para manter esta gaveta organizada.';
   return '<section class="dview emerge"><div class="dhead">'
    +'<button class="back" data-act="home">'+icon('back')+'Armário</button>'
    +'<div class="dtitle"><span class="plate"><span class="hz" lang="ja">'+h[0]+'</span></span><div><h1 tabindex="-1">'+esc(d.name)+'</h1><p class="muted small">'+esc(h[1])+' · '+esc(drawerTypeLabel(d))+' · '+plural(all.length,'item','itens')+'</p></div></div>'
@@ -854,14 +997,15 @@ function openForm(opts={}){
   F.mode=edit?'edit':'add';F.editId=edit?edit.id:null;F.imgs=[];F.files=[];
   const preferredDrawer=edit?edit.drawer:(drawer||currentDrawerId());
   const preferred=getDrawer(preferredDrawer);
-  const preferredType=preferred&&drawerContentType(preferred)!=='all'?drawerContentType(preferred):null;
+  const preferredTypes=drawerContentTypes(preferred);
+  const preferredType=preferredTypes?.[0]||null;
   const explicitType=opts.type||(files&&files.length?(isImageFile(files[0])?'image':'file'):null);
   const requestedType=edit?edit.type:(explicitType||preferredType||'image');
-  if(!edit&&preferred&&drawerContentType(preferred)!=='all'&&requestedType!==drawerContentType(preferred)){
+  if(!edit&&preferredTypes&&!preferredTypes.includes(requestedType)){
     toast('Esta gaveta aceita '+drawerTypeLabel(preferred).replace(/^Somente /,'somente ')+'.');
     return;
   }
-  F.lockedType=!edit&&preferred&&drawerContentType(preferred)!=='all'?drawerContentType(preferred):null;
+  F.lockedType=!edit&&preferredTypes?.length===1?preferredTypes[0]:null;
   const type=F.lockedType||requestedType;
   F.drawerPreference=preferredDrawer||S.drawers[0].id;
   $('#fHead').textContent=edit?'Editar '+TYPES[edit.type].pt.toLowerCase():'Guardar na gaveta';
@@ -977,11 +1121,13 @@ function openDrawerDlg(id=null){
   D.editId=id;const d=id?getDrawer(id):null;
   $('#dHead').textContent=d?'Editar gaveta':'Nova gaveta';
   $('#dName').value=d?d.name:'';
-  $('#dType').value=d?drawerContentType(d):'';
+  const types=drawerContentTypes(d);
+  const selection=types?.length===2&&types.includes('note')&&types.includes('list')?'note-list':types?.[0]||'';
+  $('#dType').value=d?selection:'';
   $('#dType').disabled=!!d;
   $('#dTypeHelp').textContent=d
-    ?(drawerContentType(d)==='all'?'Esta gaveta antiga continua livre e não pode ser reclassificada.':'O tipo desta gaveta não pode ser alterado.')
-    :'Gavetas antigas continuam livres. Escolha um tipo para separar os novos itens.';
+    ?'O conteúdo permitido nesta gaveta não pode ser alterado.'
+    :'Escolha quais conteúdos poderão ser guardados nesta gaveta.';
   D.herb=d?d.herb:nextHerb();
   $('#dDel').hidden=!d;$('#dSave').textContent=d?'Salvar':'Criar gaveta';
   $('#dErr').hidden=true;renderHerbs();
@@ -991,13 +1137,13 @@ function openDrawerDlg(id=null){
 async function saveDrawer(){
   const name=val('#dName');
   if(!name){const e=$('#dErr');e.textContent='Dê um nome para a gaveta.';e.hidden=false;return}
-  const contentType=$('#dType').value;
-  if(!D.editId&&!Object.prototype.hasOwnProperty.call(TYPES,contentType)){const e=$('#dErr');e.textContent='Escolha o tipo de conteúdo desta gaveta.';e.hidden=false;return}
+  const contentTypes=DRAWER_TYPE_OPTIONS[$('#dType').value];
+  if(!D.editId&&!contentTypes){const e=$('#dErr');e.textContent='Escolha o tipo de conteúdo desta gaveta.';e.hidden=false;return}
   try{
     if(D.editId){
       const d=getDrawer(D.editId);d.name=name;d.herb=D.herb;await store.put('drawers',d);
     }else{
-      const d={id:uid(),name,herb:D.herb,contentType,order:S.drawers.reduce((m,x)=>Math.max(m,x.order),-1)+1,created:Date.now()};
+      const d={id:uid(),name,herb:D.herb,contentTypes,contentType:contentTypes[0],order:S.drawers.reduce((m,x)=>Math.max(m,x.order),-1)+1,created:Date.now()};
       await store.put('drawers',d);S.drawers.push(d);
     }
     dlgDrawer.close();render();toast(D.editId?'Gaveta atualizada.':'Gaveta criada.');
@@ -1014,6 +1160,29 @@ async function deleteDrawer(){
     S.drawers=S.drawers.filter(x=>x.id!==d.id);
     dlgDrawer.close();go({k:'home'});toast('Gaveta excluída.');
   }catch(e){console.error(e);toast('Não foi possível excluir.')}
+}
+async function reorderDrawers(id,targetId,delta=0,insertAfter=false){
+  const from=S.drawers.findIndex(d=>d.id===id);
+  if(from<0)return;
+  const targetIndex=targetId?S.drawers.findIndex(d=>d.id===targetId):-1;
+  const to=targetId?targetIndex+(insertAfter?1:0)-(from<targetIndex?1:0):from+delta;
+  if(to<0||to>=S.drawers.length||to===from)return;
+  const previous=S.drawers.slice(),previousOrders=new Map(previous.map(d=>[d.id,d.order]));
+  const next=previous.slice(),[moved]=next.splice(from,1);
+  next.splice(to,0,moved);
+  S.drawers=next;
+  S.drawers.forEach((drawer,index)=>drawer.order=index);
+  try{
+    for(const drawer of S.drawers)await store.put('drawers',drawer);
+    render();
+    toast('Ordem das gavetas salva.');
+  }catch(error){
+    console.error(error);
+    S.drawers=previous;
+    previous.forEach(drawer=>drawer.order=previousOrders.get(drawer.id));
+    render();
+    toast('Não foi possível salvar a nova ordem.');
+  }
 }
 
 /* ---------- confirmação ---------- */
@@ -1034,38 +1203,17 @@ dlgConfirm.addEventListener('close',()=>confirmDone(false));
 /* ---------- ajustes, backup ---------- */
 const dlgSettings=$('#dlgSettings');
 async function openSettings(){
-  $('#sName').value=S.name;updateChrome();$('#sUsage').textContent='';
+  $('#sName').value=S.name;updateChrome();updateProfileCard();
   if(!dlgSettings.open)dlgSettings.showModal();
-  updateStorageStatus();
   updateCloudStatus();
-  try{
-    if(navigator.storage&&navigator.storage.estimate){
-      const e=await navigator.storage.estimate();
-      if(e&&e.usage!=null)$('#sUsage').textContent='Espaço usado neste navegador: '+fmtSize(e.usage)+'.';
-    }
-  }catch(e){}
 }
-function updateStorageStatus(){
-  const status=$('#sStorageStatus');
-  if(!S.persistent)status.textContent='O armazenamento permanente não está disponível. Os dados podem desaparecer ao fechar esta página; exporte um backup para guardá-los.';
-  else if(S.storagePersistent)status.textContent='Seus dados estão salvos neste navegador, com proteção contra limpeza automática.';
-  else if(S.storageProtectionRequested)status.textContent='O navegador não concedeu proteção contra limpeza automática. Seus dados continuam salvos aqui; mantenha um backup para evitar perdas.';
-  else status.textContent='Seus dados são salvos neste navegador. Solicite a proteção abaixo e faça backups para evitar perdas.';
-}
-async function protectStorage(){
-  S.storageProtectionRequested=true;
-  try{
-    const storage=navigator.storage;
-    if(!S.persistent||!storage||typeof storage.persist!=='function'){
-      S.storagePersistent=false;
-    }else{
-      S.storagePersistent=await storage.persist();
-    }
-  }catch(e){
-    console.error(e);
-    S.storagePersistent=false;
-  }
-  updateStorageStatus();
+function updateProfileCard(){
+  const email=S.user?.email||'';
+  const displayName=S.name||email.split('@')[0]||'Perfil local';
+  const initial=Array.from(displayName.trim())[0]||'?';
+  $('#profileAvatar').textContent=initial;
+  $('#profileDisplayName').textContent=displayName;
+  $('#profileAccountEmail').textContent=email||'Salvo somente neste aparelho';
 }
 const blobToData=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(b)});
 function dataToBlob(d){
@@ -1164,10 +1312,11 @@ async function loadCloudUser(user){
       if(item.thumbData){item.thumb=dataToBlob(item.thumbData);delete item.thumbData}
       await store.put('items',item);
     }
-    S.name=profile?.name||cachedName;
+    S.name=profile?.name||user.user_metadata?.display_name||cachedName||(user.email||'').split('@')[0];
     await store.put('meta',{id:'name',v:S.name});
     S.cloudPending=(await store.get('meta','_cloudQueue',user.id)||[]).length>0;
   }finally{cloudHydrating=false}
+  if(!profile?.name&&S.name)await store.put('meta',{id:'name',v:S.name});
   await loadScope(user.id);
 }
 async function setCloudUser(user){
@@ -1176,6 +1325,7 @@ async function setCloudUser(user){
   S.cloudPending=false;
   if(!user){
     await loadScope('local');
+    updateProfileCard();
     render();updateCloudStatus();
     return;
   }
@@ -1193,7 +1343,20 @@ async function setCloudUser(user){
     S.cloudError=error.message||'Não foi possível carregar os dados da conta.';
     try{await loadScope(user.id)}catch(loadError){console.error(loadError)}
   }
+  if(!S.cloudError&&!S.drawers.length&&!S.items.length){
+    try{await seed()}catch(error){
+      console.error(error);
+      S.cloudError=error.message||'Não foi possível preparar o armário desta conta.';
+      toast('Não foi possível preparar o armário desta conta.');
+    }
+  }
+  try{await ensureDrawerProfiles()}catch(error){
+    console.error(error);
+    S.cloudError=error.message||'Não foi possível organizar os tipos das gavetas.';
+    toast('Não foi possível aplicar as regras de conteúdo às gavetas.');
+  }
   updateCloudStatus();
+  updateProfileCard();
   render();
 }
 async function syncCloudNow(){
@@ -1253,7 +1416,7 @@ async function copyLocalDataToCloud(){
   }
 }
 function updateCloudStatus(){
-  const status=$('#cloudStatus'),auth=$('#cloudAuthActions'),account=$('#cloudAccountActions'),authBlock=$('#cloudAuth');
+  const status=$('#cloudStatus'),account=$('#cloudAccountActions'),authBlock=$('#cloudAuth');
   if(!status)return;
   if(!cloud){
     status.textContent=cloudConfigError?cloudConfigError:!window.supabase?'Não foi possível carregar o cliente Supabase. Verifique sua conexão com a internet.':'Configure a URL e a chave pública do projeto em amor-config.js, aplique supabase-schema.sql e abra o site por localhost ou HTTPS.';
@@ -1264,74 +1427,146 @@ function updateCloudStatus(){
   }else{
     status.textContent='Entre ou crie uma conta para acessar seus dados na nuvem. Sem login, os dados ficam apenas neste navegador.';
   }
-  if(auth)auth.hidden=!cloud||!!S.user;
   if(account)account.hidden=!cloud||!S.user;
   if(authBlock)authBlock.hidden=!cloud;
-  const password=$('#cloudPassword');
-  if(password&&!S.user)password.setAttribute('autocomplete','current-password');
+  const copyWarning=$('#cloudCopyWarning');
+  if(copyWarning)copyWarning.hidden=!cloud||!S.user;
+  updateProfileCard();
+}
+let cloudAuthMode='signin',signupEmail='';
+function setCloudAuthMessage(message,isError=false,showResend=false){
+  const feedback=$('#cloudAuthFeedback');
+  feedback.hidden=!message;
+  feedback.classList.toggle('error',isError);
+  $('#cloudAuthMessage').textContent=message;
+  $('#cloudResend').hidden=!showResend;
+}
+function setCloudAuthMode(mode){
+  cloudAuthMode=mode==='signup'?'signup':'signin';
+  $$('.auth-mode').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.mode===cloudAuthMode)));
+  $('#cloudAuthHelp').textContent=cloudAuthMode==='signup'
+    ?'Cadastre um e-mail diferente para cada pessoa. Cada conta terá gavetas e itens separados. Enviaremos um link para confirmar o cadastro.'
+    :'Entre com o e-mail da pessoa. O site abrirá somente os dados salvos nessa conta.';
+  const submit=$('#cloudAuthSubmit');
+  submit.textContent=cloudAuthMode==='signup'?'Cadastrar minha conta':'Entrar na minha conta';
+  $('#cloudDisplayNameField').hidden=cloudAuthMode!=='signup';
+  $('#cloudForgotPassword').hidden=cloudAuthMode==='signup';
+  $('#cloudResendPassword').hidden=true;
+  $('#cloudPassword').setAttribute('autocomplete',cloudAuthMode==='signup'?'new-password':'current-password');
+  setCloudAuthMessage('');
+}
+function authRedirectUrl(){return location.origin+location.pathname}
+function setPasswordRecoveryMode(active){
+  $('#cloudAuth').classList.toggle('recovering',active);
+  $$('.auth-switch, #cloudAuthHelp, #cloudDisplayNameField, #cloudEmail, #cloudPassword, #cloudAuthSubmit, #cloudForgotPassword').forEach(element=>{
+    const field=element.closest('.field');
+    if(field)field.hidden=active;
+    else element.hidden=active;
+  });
+  $('#cloudRecovery').hidden=!active;
+  if(active){
+    $('#cloudRecoveryHelp').textContent='Link confirmado. Escolha sua nova senha e digite-a novamente para confirmar.';
+    setCloudAuthMessage('');
+    if(!dlgSettings.open)dlgSettings.showModal();
+    setTimeout(()=>$('#cloudNewPassword').focus(),0);
+  }
+}
+function togglePasswordVisibility(button){
+  const input=$('#'+button.dataset.target);
+  if(!input)return;
+  const showing=input.type==='password';
+  input.type=showing?'text':'password';
+  button.setAttribute('aria-pressed',String(showing));
+  button.setAttribute('aria-label',(showing?'Ocultar ':'Mostrar ')+(input.id==='cloudNewPassword'?'nova senha':'confirmação da senha'));
+  button.innerHTML=passwordEyeIcon(showing);
+}
+function passwordEyeIcon(showing){
+  return showing
+    ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c5.2 0 9 5.3 10 7-.4.7-1.4 2-2.8 3.3M6.2 6.2C3.9 7.7 2.5 10 2 12c1 1.7 4.8 7 10 7 1.1 0 2.1-.2 3-.6"/></svg>'
+    :'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+}
+function cloudAuthErrorMessage(error){
+  const message=String(error?.message||'').toLowerCase();
+  const code=String(error?.code||'').toLowerCase();
+  if(/email not confirmed|email_not_confirmed/.test(message+' '+code))
+    return 'Este e-mail ainda não foi confirmado. Confira sua caixa de entrada e a pasta de spam; você também pode pedir outro link de confirmação.';
+  if(/invalid login credentials|invalid_credentials|user not found|email not found/.test(message+' '+code))
+    return 'Não reconhecemos essa combinação de e-mail e senha. Confira os dados ou escolha “Cadastrar nova conta” se ainda não se cadastrou.';
+  if(/already registered|user already exists|email_exists|user_already_exists/.test(message+' '+code))
+    return 'Este e-mail já tem uma conta. Volte para “Entrar na minha conta” e use a senha cadastrada.';
+  if(/invalid email|email_address_invalid/.test(message+' '+code))
+    return 'Confira o endereço de e-mail. Digite um endereço válido, como voce@exemplo.com.';
+  if(/password.*(at least|short|characters)|weak_password/.test(message+' '+code))
+    return 'A senha não atende ao mínimo exigido. Use uma senha mais longa e tente novamente.';
+  if(/rate limit|too many requests/.test(message+' '+code))
+    return 'O serviço limitou temporariamente o envio de e-mails. Aguarde um instante e tente novamente.';
+  if(/failed to fetch|network|fetch error/.test(message+' '+code))
+    return 'Não foi possível conectar ao serviço de contas. Verifique sua internet e tente novamente.';
+  return error?.message||'Não foi possível concluir o acesso à conta.';
 }
 async function cloudAuth(action){
   if(!cloud){updateCloudStatus();return}
-  const email=$('#cloudEmail').value.trim(),password=$('#cloudPassword').value;
-  if(!email||!password){toast('Preencha seu e-mail e sua senha.');return}
-  if(location.protocol==='file:'){toast('Abra a página em localhost ou HTTPS para conectar ao Supabase.');return}
+  const email=$('#cloudEmail').value.trim().toLowerCase(),password=$('#cloudPassword').value;
+  const displayName=$('#cloudDisplayName').value.trim().slice(0,40);
+  if(!email||!password){setCloudAuthMessage('Preencha seu e-mail e sua senha.',true);return}
+  if($('#cloudEmail').validity.typeMismatch){setCloudAuthMessage('Confira o endereço de e-mail. Digite um endereço válido, como voce@exemplo.com.',true);return}
+  if(action==='signup'&&!displayName){setCloudAuthMessage('Informe um nome para identificar este perfil.',true);$('#cloudDisplayName').focus();return}
+  if(location.protocol==='file:'){setCloudAuthMessage('Abra o site por localhost ou HTTPS para usar a conta.',true);return}
   let result;
   if(action==='signup'){
-    result=await cloud.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
-    if(!result.error&&!result.data.session){toast('Conta criada. Confira seu e-mail para confirmar o cadastro.');return}
-  }else result=await cloud.auth.signInWithPassword({email,password});
+    result=await cloud.auth.signUp({email,password,options:{emailRedirectTo:authRedirectUrl(),data:{display_name:displayName}}});
+    if(result.error)throw result.error;
+    if(!result.data.session){
+      if(Array.isArray(result.data.user?.identities)&&result.data.user.identities.length===0){
+        setCloudAuthMode('signin');
+        setCloudAuthMessage('Este e-mail já possui uma conta. Entre com sua senha ou confira o e-mail de confirmação recebido.',true);
+        return;
+      }
+      signupEmail=email;
+      $('#cloudPassword').value='';
+      setCloudAuthMessage('Enviamos um link de confirmação para '+email+'. Confira sua caixa de entrada e a pasta de spam. Depois, confirme o cadastro e entre aqui com sua senha.',false,true);
+      return;
+    }
+  }else{
+    result=await cloud.auth.signInWithPassword({email,password});
+  }
   if(result.error)throw result.error;
   $('#cloudPassword').value='';
+  setCloudAuthMessage('');
   if(result.data.user)await setCloudUser(result.data.user);
 }
-async function exportBackup(){
-  toast('Preparando o backup…',6000);
-  try{
-    const items=[];
-    for(const it of S.items){
-      const o={...it};delete o.thumb;
-      o.thumbData=it.thumb?await blobToData(it.thumb):null;
-      if(it.type==='image'||it.type==='file'){const rec=await getItemBlob(it.id);o.blobData=rec?await blobToData(rec.blob):null}
-      items.push(o);
-    }
-    const payload={app:'diario-apotecaria',version:1,exported:new Date().toISOString(),name:S.name,drawers:S.drawers,items};
-    const day=new Date().toISOString().slice(0,10);
-    await saveFile('diario-apotecaria-'+day+'.json',new Blob([JSON.stringify(payload)],{type:'application/json'}));
-  }catch(e){console.error(e);toast('Não foi possível criar o backup.')}
+async function resendSignupEmail(){
+  if(!cloud){updateCloudStatus();return}
+  const email=$('#cloudEmail').value.trim().toLowerCase()||signupEmail;
+  if(!email){setCloudAuthMessage('Informe o e-mail usado no cadastro.',true);return}
+  const {error}=await cloud.auth.resend({type:'signup',email,options:{emailRedirectTo:authRedirectUrl()}});
+  if(error)throw error;
+  signupEmail=email;
+  setCloudAuthMessage('Reenviamos o e-mail de confirmação para '+email+'. Confira também a pasta de spam.',false,true);
 }
-async function importBackup(file){
-  try{
-    const data=JSON.parse(await file.text());
-    if(!data||data.app!=='diario-apotecaria'||!Array.isArray(data.drawers)||!Array.isArray(data.items))throw new UserErr('Esse arquivo não é um backup deste diário.');
-    const backupDrawers=new Map(data.drawers.map(d=>[String(d.id),{
-      id:String(d.id),name:String(d.name||'Gaveta'),herb:+d.herb||0,
-      contentType:d.contentType==null?'all':d.contentType,order:+d.order||0,created:+d.created||Date.now()
-    }]));
-    for(const d of backupDrawers.values()){
-      if(d.contentType!=='all'&&!Object.prototype.hasOwnProperty.call(TYPES,d.contentType))throw new UserErr('O backup contém uma gaveta com tipo inválido.');
-    }
-    for(const it of data.items){
-      const d=backupDrawers.get(String(it.drawer));
-      if(d&&d.contentType!=='all'&&d.contentType!==it.type)throw new UserErr('O backup mistura tipos na gaveta “'+d.name+'”. Nenhum dado foi importado.');
-    }
-    for(const d of backupDrawers.values())await store.put('drawers',d);
-    for(const o of data.items){
-      const it={...o};const {thumbData,blobData}=it;delete it.thumbData;delete it.blobData;
-      if(thumbData)it.thumb=dataToBlob(thumbData);
-      if(blobData)await store.put('blobs',{id:it.id,blob:dataToBlob(blobData)});
-      await store.put('items',it);
-    }
-    if(data.name&&!S.name){S.name=String(data.name).slice(0,40);await setMeta('name',S.name)}
-    await setMeta('seeded',true);
-    S.drawers=(await store.all('drawers')).sort((a,b)=>a.order-b.order);
-    S.items=await store.all('items');
-    urls.forEach(u=>URL.revokeObjectURL(u));urls.clear();
-    dlgSettings.close();go({k:'home'},false);
-    toast('Backup restaurado: '+plural(data.items.length,'item','itens')+'.');
-  }catch(e){
-    console.error(e);
-    toast(e instanceof UserErr?e.message:'Não foi possível ler o backup.');
-  }
+async function requestPasswordReset(){
+  if(!cloud){updateCloudStatus();return}
+  const email=$('#cloudEmail').value.trim().toLowerCase();
+  if(!email){setCloudAuthMessage('Digite seu e-mail acima para receber o link de redefinição.',true);$('#cloudEmail').focus();return}
+  if($('#cloudEmail').validity.typeMismatch){setCloudAuthMessage('Confira o endereço de e-mail e tente novamente.',true);$('#cloudEmail').focus();return}
+  const {error}=await cloud.auth.resetPasswordForEmail(email,{redirectTo:new URL('recuperar-senha.html',location.href).href});
+  if(error)throw error;
+  $('#cloudResendPassword').hidden=false;
+  setCloudAuthMessage('Se houver uma conta com esse e-mail, enviaremos um link para criar uma nova senha. Confira sua caixa de entrada e a pasta de spam.');
+}
+async function updateRecoveredPassword(){
+  if(!cloud){updateCloudStatus();return}
+  const password=$('#cloudNewPassword').value,confirmation=$('#cloudConfirmPassword').value;
+  if(!password||!confirmation){setCloudAuthMessage('Preencha os dois campos de senha.',true);return}
+  if(password.length<6){setCloudAuthMessage('A nova senha precisa ter pelo menos 6 caracteres.',true);return}
+  if(password!==confirmation){setCloudAuthMessage('As senhas não são iguais. Confira os dois campos.',true);$('#cloudConfirmPassword').focus();return}
+  const {data,error}=await cloud.auth.updateUser({password});
+  if(error)throw error;
+  $('#cloudNewPassword').value='';
+  $('#cloudConfirmPassword').value='';
+  setPasswordRecoveryMode(false);
+  setCloudAuthMessage('Senha alterada. Você já pode entrar com a nova senha.');
+  if(data.user)await setCloudUser(data.user);
 }
 async function wipeAll(){
   const location=S.user?'deste aparelho e da sua conta na nuvem':'deste aparelho';
@@ -1382,7 +1617,6 @@ document.addEventListener('change',e=>{
   if(t.matches&&t.matches('[data-act="toggle"]'))toggleItem(t);
   else if(t.id==='fImgs'||t.id==='fFiles'){addFiles(t.files,t.id==='fImgs'?'image':'file');t.value=''}
   else if(t.id==='fDrawer')F.drawerPreference=t.value;
-  else if(t.id==='sImport'&&t.files[0]){importBackup(t.files[0]);t.value=''}
 });
 
 document.addEventListener('click',async e=>{
@@ -1399,7 +1633,9 @@ document.addEventListener('click',async e=>{
     case 'home':go({k:'home'});break;
     case 'clear-search':go(S.view.k==='drawer'?S.view:{k:'home'});break;
     case 'add':openForm();break;
-    case 'open-drawer':openDrawerView(el.dataset.id,el);break;
+    case 'open-drawer':
+      if(ignoreNextDrawerClick){ignoreNextDrawerClick=false;e.preventDefault();break}
+      openDrawerView(el.dataset.id,el);break;
     case 'new-drawer':openDrawerDlg();break;
     case 'edit-drawer':openDrawerDlg(S.view.id);break;
     case 'chip':S.filter=el.dataset.f;render();break;
@@ -1411,8 +1647,13 @@ document.addEventListener('click',async e=>{
     }
     case 'settings':openSettings();break;
     case 's-close':dlgSettings.close();break;
-    case 's-name':{const n=val('#sName');S.name=n;await setMeta('name',n);render();toast('Nome salvo.');break}
-    case 's-persist':protectStorage();break;
+    case 's-name':{const n=val('#sName').trim().slice(0,40);S.name=n;await setMeta('name',n);updateProfileCard();render();toast('Nome do perfil salvo.');break}
+    case 'cloud-mode':setCloudAuthMode(el.dataset.mode);break;
+    case 'cloud-submit':cloudAuth(cloudAuthMode).catch(error=>{console.error(error);const message=cloudAuthErrorMessage(error);setCloudAuthMessage(message,true,/email ainda não foi confirmado/i.test(message))});break;
+    case 'cloud-resend':resendSignupEmail().catch(error=>{console.error(error);setCloudAuthMessage(cloudAuthErrorMessage(error),true,true)});break;
+    case 'cloud-forgot':requestPasswordReset().catch(error=>{console.error(error);setCloudAuthMessage(cloudAuthErrorMessage(error),true)});break;
+    case 'cloud-update-password':updateRecoveredPassword().catch(error=>{console.error(error);setCloudAuthMessage(cloudAuthErrorMessage(error),true)});break;
+    case 'password-toggle':togglePasswordVisibility(el);break;
     case 'cloud-signin':cloudAuth('signin').catch(error=>{console.error(error);toast(error.message||'Não foi possível entrar na conta.')});break;
     case 'cloud-signup':cloudAuth('signup').catch(error=>{console.error(error);toast(error.message||'Não foi possível criar a conta.')});break;
     case 'cloud-signout':{
@@ -1424,7 +1665,6 @@ document.addEventListener('click',async e=>{
     }
     case 'cloud-sync':syncCloudNow();break;
     case 'cloud-migrate':copyLocalDataToCloud();break;
-    case 's-export':exportBackup();break;
     case 's-wipe':wipeAll();break;
     case 'f-close':dlgForm.close();break;
     case 'f-save':saveForm();break;
@@ -1479,8 +1719,87 @@ document.addEventListener('click',async e=>{
   }
 });
 
+let pointerReorder=null,ignoreNextDrawerClick=false;
+function suppressNextDrawerClick(){
+  ignoreNextDrawerClick=true;
+  setTimeout(()=>{ignoreNextDrawerClick=false},500);
+}
+document.addEventListener('pointerdown',e=>{
+  const handle=e.target.closest('.drawer-drag-handle');
+  const slot=handle&&handle.closest('.drawer-slot[data-drawer-id]');
+  if(!slot)return;
+  if(e.button!==undefined&&e.button!==0)return;
+  e.preventDefault();
+  const rect=slot.getBoundingClientRect();
+  pointerReorder={id:slot.dataset.drawerId,pointerId:e.pointerId,x:e.clientX,y:e.clientY,offsetX:e.clientX-rect.left,offsetY:e.clientY-rect.top,slot,active:false,clone:null};
+});
+document.addEventListener('pointermove',e=>{
+  const drag=pointerReorder;
+  if(!drag||drag.pointerId!==e.pointerId)return;
+  if(!drag.active&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<10)return;
+  e.preventDefault();
+  if(!drag.active){
+    drag.active=true;
+    const rect=drag.slot.getBoundingClientRect();
+    drag.clone=drag.slot.cloneNode(true);
+    drag.clone.classList.add('drawer-drag-preview');
+    drag.clone.style.width=rect.width+'px';
+    drag.clone.style.height=rect.height+'px';
+    document.body.appendChild(drag.clone);
+    drag.slot.classList.add('is-dragging');
+  }
+  drag.clone.style.left=(e.clientX-drag.offsetX)+'px';
+  drag.clone.style.top=(e.clientY-drag.offsetY)+'px';
+  const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('.drawer-slot[data-drawer-id]');
+  if(!target||target===drag.slot)return;
+  const rect=target.getBoundingClientRect();
+  const after=e.clientX>rect.left+rect.width/2;
+  target.parentElement.insertBefore(drag.slot,after?target.nextElementSibling:target);
+  drag.targetId=target.dataset.drawerId;
+},{passive:false});
+document.addEventListener('pointerup',async e=>{
+  const drag=pointerReorder;
+  if(!drag||drag.pointerId!==e.pointerId)return;
+  pointerReorder=null;
+  if(!drag.active)return;
+  e.preventDefault();
+  suppressNextDrawerClick();
+  drag.slot.classList.remove('is-dragging');
+  if(drag.clone)drag.clone.remove();
+  const order=[...document.querySelectorAll('.cabinet .drawer-slot[data-drawer-id]')].map(slot=>slot.dataset.drawerId);
+  if(!order.some((id,index)=>id!==S.drawers[index]?.id))return;
+  const previous=S.drawers.slice(),previousOrders=new Map(previous.map(drawer=>[drawer.id,drawer.order]));
+  S.drawers=order.map(id=>getDrawer(id)).filter(Boolean);
+  S.drawers.forEach((drawer,index)=>drawer.order=index);
+  try{
+    for(const drawer of S.drawers)await store.put('drawers',drawer);
+    render();
+    toast('Ordem das gavetas salva.');
+  }catch(error){
+    console.error(error);
+    S.drawers=previous;
+    previous.forEach(drawer=>drawer.order=previousOrders.get(drawer.id));
+    render();
+    toast('Não foi possível salvar a nova ordem.');
+  }
+});
+document.addEventListener('pointercancel',()=>{
+  const drag=pointerReorder;
+  pointerReorder=null;
+  if(!drag)return;
+  drag.slot.classList.remove('is-dragging');
+  if(drag.clone)drag.clone.remove();
+  if(drag.active)render();
+});
+
 document.addEventListener('keydown',e=>{
   if((e.key==='Enter')&&e.target.classList&&e.target.classList.contains('card')){openViewer(e.target.dataset.id);return}
+  const drawer=e.target.closest&&e.target.closest('.drawer[data-act="open-drawer"]');
+  if(drawer&&e.altKey&&(e.key==='ArrowUp'||e.key==='ArrowDown')){
+    e.preventDefault();
+    reorderDrawers(drawer.dataset.id,null,e.key==='ArrowUp'?-1:1);
+    return;
+  }
   if(dlgView.open&&!dlgConfirm.open&&(e.key==='ArrowLeft'||e.key==='ArrowRight')&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)){stepViewer(e.key==='ArrowLeft'?-1:1)}
   if(e.key==='Enter'&&e.target.id==='dName'){e.preventDefault();saveDrawer()}
   if(e.key==='Enter'&&e.target.id==='wName'){e.preventDefault();closeWelcome(true)}
@@ -1521,6 +1840,8 @@ window.addEventListener('drop',e=>{
 
 /* ---------- início ---------- */
 hydrateIcons();
+setCloudAuthMode('signin');
+$$('.password-toggle').forEach(button=>{button.innerHTML=passwordEyeIcon(false)});
 applyTheme(document.documentElement.getAttribute('data-theme')||'auto');
 window.addEventListener('online',()=>{if(S.user&&S.cloudPending)syncCloudNow()});
 (async()=>{
@@ -1528,6 +1849,9 @@ window.addEventListener('online',()=>{if(S.user&&S.cloudPending)syncCloudNow()})
   applyTheme(S.theme);
   if(cloud){
     try{
+      cloud.auth.onAuthStateChange(event=>{
+        if(event==='PASSWORD_RECOVERY')setPasswordRecoveryMode(true);
+      });
       const {data,error}=await cloud.auth.getSession();
       if(error)throw error;
       if(data.session?.user)await setCloudUser(data.session.user);

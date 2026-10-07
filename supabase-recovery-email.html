@@ -1,0 +1,26 @@
+<!-- Supabase: Authentication > Email Templates > Reset Password.
+Subject: Redefinição de senha do Nosso Cantinho
+Cole o conteúdo HTML abaixo no modelo de e-mail de redefinição de senha. -->
+<div style="margin:0;padding:32px 16px;background:#101713;color:#eee9da;font-family:Arial,sans-serif">
+  <div style="max-width:520px;margin:0 auto;padding:32px;border:1px solid #33443a;border-radius:14px;background:#171f1b">
+    <h1 style="margin:0 0 16px;color:#eee9da;font-family:Georgia,serif;font-size:26px">Redefinir sua senha</h1>
+    <p style="margin:0 0 20px;color:#c7d0c9;font-size:16px;line-height:1.6">
+      Recebemos uma solicitação para criar uma nova senha para sua conta do Nosso Cantinho.
+    </p>
+    <p style="margin:0 0 24px">
+      <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:13px 20px;border-radius:8px;background:#65ae99;color:#102019;font-size:16px;font-weight:bold;text-decoration:none">
+        Criar nova senha
+      </a>
+    </p>
+    <p style="margin:0 0 12px;color:#c7d0c9;font-size:14px;line-height:1.6">
+      Se você não pediu a redefinição, ignore esta mensagem. Sua senha atual continuará funcionando.
+    </p>
+    <p style="margin:0;color:#a4afa7;font-size:12px;line-height:1.6">
+      Por segurança, não compartilhe este link. Se o botão não abrir, copie e cole este endereço no navegador:
+    </p>
+    <p style="margin:8px 0 0;font-size:12px;line-height:1.6;overflow-wrap:anywhere">
+      <a href="{{ .ConfirmationURL }}" style="color:#9bd6c2">{{ .ConfirmationURL }}</a>
+    </p>
+    <p style="margin:24px 0 0;color:#a4afa7;font-size:12px">Nosso Cantinho</p>
+  </div>
+</div>
