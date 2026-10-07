@@ -1753,7 +1753,9 @@ async function cloudAuth(action){
     if(!result.data.session){
       if(Array.isArray(result.data.user?.identities)&&result.data.user.identities.length===0){
         setCloudAuthMode('signin');
-        setCloudAuthMessage('Este e-mail já possui uma conta. Entre com sua senha ou confira o e-mail de confirmação recebido.',true);
+        signupEmail=email;
+        $('#cloudEmail').value=email;
+        setCloudAuthMessage('Este e-mail já possui uma conta. Entre com sua senha. Se o cadastro ainda não foi confirmado, peça um novo e-mail de confirmação.',true,true);
         return;
       }
       signupEmail=email;
