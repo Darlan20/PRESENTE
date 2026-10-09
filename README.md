@@ -17,6 +17,12 @@ O projeto funciona **sem conta**, salvando os dados no navegador, e também pode
 - 📦 Armazenamento privado de arquivos no Supabase Storage.
 - 🔑 Recuperação e redefinição de senha.
 - 📱 Interface responsiva e acessível.
+- 💞 Contador de dias e personalização dos nomes.
+- 🕰️ Linha do tempo de lembranças.
+- 💌 Cartas com data programada para abrir (organização visual, não segurança).
+- 🗓️ Lista de datas especiais.
+- 🎲 Perguntas para conversar a dois e som ambiente opcional.
+- 📲 Estrutura PWA para instalação e cache estático limitado.
 
 ## 🧰 Tecnologias
 
@@ -124,6 +130,10 @@ O convite expira em 7 dias e pode ser usado uma única vez.
 
 O conteúdo pessoal continua separado. Apenas o espaço compartilhado fica acessível às duas contas.
 
+### Recursos extras de lembranças
+
+A linha do tempo, as cartas, as datas especiais e os nomes personalizados ficam no armazenamento local do navegador, separados pelo e-mail da conta quando o perfil está autenticado. Esses dados **não são sincronizados para a nuvem** nem compartilhados automaticamente com a outra pessoa. Faça backup antes de limpar os dados do navegador. A data de abertura de uma carta é apenas uma organização visual; não use esse recurso para guardar informações confidenciais.
+
 ## 📁 Estrutura principal
 
 | Arquivo | Função |
@@ -137,6 +147,10 @@ O conteúdo pessoal continua separado. Apenas o espaço compartilhado fica acess
 | `index.html` | Entrada do site |
 | `vercel.json` | Configuração de rotas e cabeçalhos |
 | `favicon.svg` | Ícone do site |
+| `nosso-recursos.js` | Linha do tempo, cartas, datas e personalização |
+| `nosso-recursos.css` | Estilos responsivos dos novos recursos |
+| `manifest.webmanifest` | Metadados de instalação PWA |
+| `service-worker.js` | Cache limitado do shell estático offline |
 
 ## 🛡️ Privacidade
 

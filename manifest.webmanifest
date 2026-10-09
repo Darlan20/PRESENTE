@@ -1,0 +1,12 @@
+{
+  "name": "Nosso Cantinho",
+  "short_name": "Nosso Cantinho",
+  "description": "Um espaço delicado para guardar lembranças, cartas e momentos especiais.",
+  "lang": "pt-BR",
+  "start_url": "/amor.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#171f1b",
+  "theme_color": "#171f1b",
+  "icons": [{"src":"/favicon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
