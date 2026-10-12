@@ -8,6 +8,12 @@ const fmt=s=>s?new Intl.DateTimeFormat("pt-BR",{day:"numeric",month:"long",year:
 let shown=new Date(),selectedDate="";
 function iso(y,m,d){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0")}
 function eventMarkup(x){return '<article class="cc-event '+(x.completed?"completed":"")+'"><div><b>'+esc(x.title)+'</b><time>'+fmt(x.date)+'</time>'+(x.text?'<p>'+esc(x.text)+'</p>':"")+'<small>Data importante</small></div></article>'}
+function showDateDialog(date,records){
+ let dialog=$("#ccDateDialog");if(!dialog){dialog=document.createElement("dialog");dialog.id="ccDateDialog";dialog.className="cc-date-dialog";document.body.appendChild(dialog)}
+ dialog.innerHTML='<div class="cc-dialog-head"><div><small>DATA IMPORTANTE</small><h3>'+fmt(date)+'</h3></div><button type="button" data-cc-dialog-close aria-label="Fechar">×</button></div><div class="cc-dialog-body">'+records.map(x=>'<article class="cc-dialog-event"><b>'+esc(x.title)+'</b>'+(x.text?'<p>'+esc(x.text)+'</p>':'')+'</article>').join("")+'</div>';
+ if(!dialog.open)dialog.showModal();
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-cc-dialog-close]");if(b)b.closest("dialog")?.close()});
 function draw(){
  const card=$('[data-extra-form="date"]')?.closest(".ex-card");if(!card)return;
  let root=$("#coupleCalendar",card);
@@ -24,7 +30,15 @@ function draw(){
 document.addEventListener("click",e=>{const b=e.target.closest("[data-cal],[data-cal-day],[data-cal-close]");if(!b)return;
  if(b.dataset.cal){shown.setMonth(shown.getMonth()+(b.dataset.cal==="next"?1:-1));selectedDate="";draw();return}
  if(b.hasAttribute("data-cal-close")){selectedDate="";draw();return}
- if(b.dataset.calDay){selectedDate=b.dataset.calDay;const dt=new Date(selectedDate+"T12:00:00");shown=new Date(dt.getFullYear(),dt.getMonth(),1);draw()}
+ if(b.dataset.calDay){
+ selectedDate=b.dataset.calDay;
+ const dt=new Date(selectedDate+"T12:00:00");shown=new Date(dt.getFullYear(),dt.getMonth(),1);
+ const form=$('[data-extra-form="date"]');
+ if(form){form.elements.date.value=selectedDate;form.elements.title.focus({preventScroll:true})}
+ const records=(Array.isArray(read().dates)?read().dates:[]).filter(x=>x.date===selectedDate);
+ if(records.length)showDateDialog(selectedDate,records);
+ draw()
+}
 });
 document.addEventListener("submit",e=>{if(e.target.matches('[data-extra-form="date"]'))setTimeout(()=>{selectedDate=e.target.elements.date.value||"";if(selectedDate){const dt=new Date(selectedDate+"T12:00:00");shown=new Date(dt.getFullYear(),dt.getMonth(),1)}draw()},80)});
 function boot(){draw();const app=$("#app");if(app)new MutationObserver(()=>{if(!$("#coupleCalendar"))draw()}).observe(app,{childList:true,subtree:true});addEventListener("storage",draw)}
