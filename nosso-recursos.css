@@ -76,3 +76,38 @@
  #coupleExtras .ex-grid>.ex-card:nth-child(3){grid-area:dates!important;order:initial!important}
  #coupleExtras .ex-grid>.ex-card{height:auto!important;min-height:0!important;align-self:start!important}
 }
+
+/* Correção definitiva para telas estreitas: fluxo vertical natural, sem linhas vazias */
+@media(max-width:900px){
+  #coupleExtras .ex-grid{
+    display:flex!important;
+    flex-direction:column!important;
+    flex-wrap:nowrap!important;
+    justify-content:flex-start!important;
+    align-content:flex-start!important;
+    align-items:stretch!important;
+    gap:10px!important;
+    row-gap:10px!important;
+    grid-template:none!important;
+    grid-template-areas:none!important;
+    grid-auto-rows:auto!important;
+    height:auto!important;
+    min-height:0!important;
+  }
+  #coupleExtras .ex-grid>.ex-card{
+    display:block!important;
+    position:static!important;
+    inset:auto!important;
+    grid-area:auto!important;
+    order:initial!important;
+    flex:0 0 auto!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    transform:none!important;
+  }
+  #coupleExtras .ex-grid>.ex-card:nth-child(1){order:1!important}
+  #coupleExtras .ex-grid>.ex-card:nth-child(4){order:2!important}
+  #coupleExtras .ex-grid>.ex-card:nth-child(2){order:3!important}
+  #coupleExtras .ex-grid>.ex-card:nth-child(3){order:4!important}
+}
