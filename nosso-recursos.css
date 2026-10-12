@@ -111,3 +111,5 @@
   #coupleExtras .ex-grid>.ex-card:nth-child(2){order:3!important}
   #coupleExtras .ex-grid>.ex-card:nth-child(3){order:4!important}
 }
+
+@media(min-width:901px){#coupleExtras .ex-grid{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;grid-template-areas:"timeline letters" "questions dates"!important;grid-auto-rows:auto!important;align-items:stretch!important;align-content:stretch!important;gap:12px!important}#coupleExtras .ex-grid>.ex-card:nth-child(1){grid-area:timeline!important}#coupleExtras .ex-grid>.ex-card:nth-child(2){grid-area:letters!important}#coupleExtras .ex-grid>.ex-card:nth-child(3){grid-area:dates!important;height:100%!important;min-height:100%!important;align-self:stretch!important;display:flex!important;flex-direction:column!important;box-sizing:border-box!important}#coupleExtras .ex-grid>.ex-card:nth-child(4){grid-area:questions!important}#coupleExtras .ex-grid>.ex-card:nth-child(3) .ex-list{flex:1 1 auto!important}}
