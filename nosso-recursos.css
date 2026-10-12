@@ -40,3 +40,19 @@
  #coupleExtras .couple-calendar .cc-head,#coupleExtras .couple-calendar .cc-week,#coupleExtras .couple-calendar>.cc-grid:not(.cc-week),#coupleExtras .couple-calendar .cc-events{grid-column:1;grid-row:auto}
  #coupleExtras .couple-calendar .cc-events{border-left:0;border-top:1px solid var(--line);padding:8px 0 0}
 }
+
+/* Organiza Perguntas para dois logo abaixo da linha do tempo */
+@media(min-width:761px){
+ #coupleExtras .ex-grid{grid-template-areas:"timeline letters" "questions dates"!important}
+ #coupleExtras .ex-grid>.ex-card:nth-child(1){grid-area:timeline}
+ #coupleExtras .ex-grid>.ex-card:nth-child(2){grid-area:letters}
+ #coupleExtras .ex-grid>.ex-card:nth-child(3){grid-area:dates}
+ #coupleExtras .ex-grid>.ex-card:nth-child(4){grid-area:questions}
+}
+@media(max-width:760px){
+ #coupleExtras .ex-grid{display:flex!important;flex-direction:column!important}
+ #coupleExtras .ex-grid>.ex-card:nth-child(1){order:1}
+ #coupleExtras .ex-grid>.ex-card:nth-child(4){order:2}
+ #coupleExtras .ex-grid>.ex-card:nth-child(2){order:3}
+ #coupleExtras .ex-grid>.ex-card:nth-child(3){order:4}
+}
