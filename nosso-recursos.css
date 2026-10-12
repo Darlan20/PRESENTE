@@ -137,3 +137,30 @@
  #coupleExtras .ex-grid{display:flex!important;flex-direction:column!important;gap:12px!important}
  #coupleExtras .ex-grid>.ex-card{order:initial!important;width:100%!important}
 }
+
+/* Laterais decorativas: pequenos detalhes românticos, discretos e responsivos */
+#coupleExtras{position:relative;isolation:isolate}
+#coupleExtras::before,#coupleExtras::after{
+ content:"";position:absolute;z-index:-1;pointer-events:none;opacity:.62;
+ width:118px;height:220px;border:1px solid color-mix(in srgb,var(--jade,#5aa58e) 25%,transparent);
+ border-radius:58% 42% 60% 40% / 48% 56% 44% 52%;
+}
+#coupleExtras::before{left:-78px;top:9%;transform:rotate(-22deg)}
+#coupleExtras::after{right:-78px;top:52%;transform:rotate(24deg)}
+/* ornamentos nos cantos, sem cobrir os formulários */
+#coupleExtras .ex-grid{position:relative}
+#coupleExtras .ex-card{position:relative;overflow:hidden}
+#coupleExtras .ex-card::after{
+ content:"";position:absolute;right:14px;top:13px;width:7px;height:7px;
+ border-radius:50%;background:var(--jade,#5aa58e);opacity:.5;pointer-events:none;
+ box-shadow:-11px 7px 0 -2px color-mix(in srgb,var(--jade,#5aa58e) 50%,transparent);
+}
+@media(max-width:900px){
+ #coupleExtras::before{left:-94px;top:5%;width:90px;height:150px}
+ #coupleExtras::after{right:-94px;top:62%;width:90px;height:150px}
+}
+@media(prefers-reduced-motion:no-preference){
+ #coupleExtras::before,#coupleExtras::after{animation:sideOrnamentFloat 9s ease-in-out infinite alternate}
+ #coupleExtras::after{animation-delay:-4s}
+}
+@keyframes sideOrnamentFloat{from{translate:0 0}to{translate:0 12px}}
