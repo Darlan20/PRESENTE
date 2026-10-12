@@ -164,3 +164,16 @@
  #coupleExtras::after{animation-delay:-4s}
 }
 @keyframes sideOrnamentFloat{from{translate:0 0}to{translate:0 12px}}
+
+/* Atalhos de navegação para abrir cada função do cantinho */
+.ex-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0 18px}
+.ex-shortcut{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;padding:14px 15px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);text-align:left;cursor:pointer;transition:transform .16s ease,border-color .16s ease}
+.ex-shortcut>span{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;background:color-mix(in srgb,var(--jade,#548d7c) 14%,transparent);color:var(--jade,#548d7c);font-size:1.25rem}
+.ex-shortcut b{font-size:.88rem;line-height:1.3}
+.ex-shortcut small{font-size:.75rem;line-height:1.35;color:var(--muted)}
+.ex-shortcut:hover,.ex-shortcut:focus-visible{transform:translateY(-2px);border-color:var(--jade,#548d7c);outline:none}
+.ex-card[id^="extra"]{scroll-margin-top:24px}
+.ex-card-highlight{animation:exCardHighlight .9s ease-out}
+@keyframes exCardHighlight{0%{box-shadow:0 0 0 3px color-mix(in srgb,var(--jade,#548d7c) 35%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+@media(max-width:760px){.ex-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ex-shortcut{padding:12px}}
+@media(prefers-reduced-motion:reduce){.ex-shortcut,.ex-card-highlight{transition:none;animation:none}}
