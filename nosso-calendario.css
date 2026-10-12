@@ -67,3 +67,11 @@
 .cc-dialog-body label{font-size:.82rem;font-weight:600}
 .cc-dialog-body input{width:100%;min-height:42px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--field,var(--surface));color:var(--ink);font:inherit}
 .cc-dialog-body .ex-btn{width:100%;margin-top:4px}
+
+/* Eventos em lista limpa, com ação de apagar sem ficar presa ao canto */
+.cc-month-event{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left}
+.cc-month-event-info{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;flex:1}
+.cc-month-event-info b{overflow-wrap:anywhere}
+.cc-delete-event{display:inline-flex;align-items:center;justify-content:center;flex:none;width:30px;height:30px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font-size:1.15rem;cursor:pointer}
+.cc-delete-event:hover{background:#b94b4b18;border-color:#b94b4b;color:#b94b4b}
+.cc-head h4{font-variant-numeric:tabular-nums;text-transform:none}
