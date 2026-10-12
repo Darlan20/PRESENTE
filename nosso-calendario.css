@@ -1,1 +1,26 @@
 .couple-calendar{margin:14px 0 18px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--field,var(--surface))}.cc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.cc-head h4{margin:0;text-transform:capitalize;font:600 1rem "Zen Old Mincho",Georgia,serif}.cc-head button{width:34px;height:34px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font-size:1.5rem;cursor:pointer}.cc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.cc-week{margin-bottom:5px}.cc-week span{text-align:center;color:var(--muted);font-size:.68rem;font-weight:700;padding:5px 0}.cc-day{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;aspect-ratio:1;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--ink);font:inherit;font-size:.82rem;cursor:pointer}.cc-day:hover{border-color:var(--jade,#548d7c)}.cc-day.has-event{background:color-mix(in srgb,var(--jade,#548d7c) 13%,var(--surface));font-weight:700}.cc-day.is-done{background:color-mix(in srgb,var(--jade,#548d7c) 27%,var(--surface))}.cc-day i{position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--jade,#548d7c)}.cc-blank{cursor:default}.cc-events{margin-top:16px}.cc-events-title{font:600 .95rem "Zen Old Mincho",Georgia,serif;margin-bottom:6px}.cc-event{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 65%,transparent)}.cc-check{width:30px;height:30px;flex:none;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--jade,#548d7c);font-size:1rem;cursor:pointer}.cc-event>div{display:grid;gap:3px;min-width:0}.cc-event b{font-size:.86rem;overflow-wrap:anywhere}.cc-event time,.cc-event small{font-size:.74rem;color:var(--muted)}.cc-event p{margin:3px 0;font-size:.82rem;overflow-wrap:anywhere}.cc-event.completed b{text-decoration:line-through;opacity:.75}.cc-event.completed .cc-check{background:var(--jade,#548d7c);color:white}.cc-event small{color:var(--jade,#548d7c)}@media(max-width:380px){.couple-calendar{padding:9px}.cc-grid{gap:2px}.cc-day{font-size:.75rem}}
+/* Eventos legíveis diretamente no dia, com detalhes ao tocar */
+.couple-calendar{overflow:hidden}
+.cc-day{height:auto;min-height:42px;aspect-ratio:auto;flex-direction:column;justify-content:flex-start;gap:3px;padding:5px 2px;overflow:hidden}
+.cc-day>span{font-weight:600;line-height:1.2}
+.cc-day-label{display:block;width:100%;max-width:100%;font-size:9px;line-height:1.15;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--jade,#548d7c)}
+.cc-day.has-event{border-color:color-mix(in srgb,var(--jade,#548d7c) 35%,transparent)}
+.cc-day.is-selected{outline:2px solid var(--jade,#548d7c);outline-offset:-2px;background:color-mix(in srgb,var(--jade,#548d7c) 18%,var(--surface))}
+.cc-events{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:7px;margin-top:12px}
+.cc-events-title{grid-column:1/-1}
+.cc-month-event{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;text-align:left;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.cc-month-event b{font-size:.8rem;overflow-wrap:anywhere}
+.cc-month-event time{font-size:.7rem;color:var(--muted)}
+.cc-selected{margin-top:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.cc-selected-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.cc-selected-head b{font-size:.9rem;text-transform:capitalize}
+.cc-selected-head button{width:28px;height:28px;border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--ink);font-size:1.2rem;cursor:pointer}
+.cc-selected .cc-event{padding:8px 0}
+#coupleExtras .ex-card:has([data-extra-form="date"])>.ex-list{display:none!important}
+@media(max-width:500px){
+ .couple-calendar{padding:8px}
+ .cc-grid{gap:2px}
+ .cc-day{min-height:38px;padding:4px 1px}
+ .cc-day-label{font-size:8px}
+ .cc-events{grid-template-columns:1fr 1fr}
+}
