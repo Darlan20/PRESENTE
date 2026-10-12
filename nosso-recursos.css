@@ -113,3 +113,27 @@
 }
 
 @media(min-width:901px){#coupleExtras .ex-grid{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(0,.95fr)!important;grid-template-areas:"timeline dates" "letters dates" "questions dates"!important;grid-auto-rows:minmax(0,auto)!important;align-items:stretch!important;align-content:stretch!important;gap:12px!important}#coupleExtras .ex-grid>.ex-card:nth-child(1){grid-area:timeline!important}#coupleExtras .ex-grid>.ex-card:nth-child(2){grid-area:letters!important}#coupleExtras .ex-grid>.ex-card:nth-child(3){grid-area:dates!important;grid-row:1 / span 3!important;height:100%!important;min-height:100%!important;align-self:stretch!important;display:flex!important;flex-direction:column!important;box-sizing:border-box!important}#coupleExtras .ex-grid>.ex-card:nth-child(4){grid-area:questions!important}#coupleExtras .ex-grid>.ex-card:nth-child(3) .ex-list{flex:1 1 auto!important}}
+
+/* Desktop: fluxo tipo masonry para as caixas ocuparem o espaço sem buracos */
+@media(min-width:901px){
+ #coupleExtras .ex-grid{
+   display:block!important;
+   columns:2!important;
+   column-gap:14px!important;
+   column-fill:balance!important;
+ }
+ #coupleExtras .ex-grid>.ex-card{
+   display:inline-block!important;
+   width:100%!important;
+   box-sizing:border-box!important;
+   vertical-align:top!important;
+   break-inside:avoid!important;
+   margin:0 0 14px!important;
+   height:auto!important;
+   min-height:0!important;
+ }
+}
+@media(max-width:900px){
+ #coupleExtras .ex-grid{display:flex!important;flex-direction:column!important;gap:12px!important}
+ #coupleExtras .ex-grid>.ex-card{order:initial!important;width:100%!important}
+}
