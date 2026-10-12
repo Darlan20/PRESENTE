@@ -98,3 +98,17 @@
 #coupleCalendar .cc-head h4{font-variant-numeric:tabular-nums}
 @media(min-width:700px){#coupleCalendar>.cc-toggle-calendar{min-height:150px!important;height:150px!important}}
 @media(max-width:560px){#coupleCalendar>.cc-toggle-calendar{min-height:110px!important;height:110px!important}}
+
+/* Correções de layout: capa compacta e calendário sem painel gigante */
+#coupleCalendar>.cc-toggle-calendar{height:clamp(120px,18vw,190px)!important;min-height:0!important;max-height:190px!important;align-items:flex-end!important;justify-content:flex-start!important;text-align:left!important;background-color:#254b43!important;background-position:center 48%!important;background-size:cover!important}
+#coupleCalendar>.cc-calendar-panel{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+#coupleCalendar .cc-head{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;align-items:center;gap:8px}
+#coupleCalendar .cc-head h4{text-align:center;font-size:1.05rem}
+#coupleCalendar .cc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+#coupleCalendar .cc-day{min-width:0;min-height:35px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;overflow-wrap:anywhere}
+#coupleCalendar .cc-day-label{display:block;max-width:100%;font-size:.58rem;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#coupleCalendar .cc-events{margin-top:10px}
+#coupleCalendar .cc-month-event{cursor:default}
+#coupleCalendar .cc-delete-event{cursor:pointer}
+#coupleCalendar [data-cal-day]:focus-visible{outline:2px solid var(--jade,#548d7c);outline-offset:1px}
+@media(min-width:760px){#coupleCalendar>.cc-calendar-panel{grid-template-columns:minmax(0,1.5fr) minmax(180px,1fr);column-gap:14px}#coupleCalendar .cc-head,#coupleCalendar .cc-week,#coupleCalendar .cc-grid:not(.cc-week){grid-column:1}#coupleCalendar .cc-events{grid-column:2;grid-row:1 / span 3;border-left:1px solid var(--line);padding-left:12px;margin-top:0}}
