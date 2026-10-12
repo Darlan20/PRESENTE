@@ -20,7 +20,7 @@
 try{var t=localStorage.getItem('apo-theme');if(t==='clean'){t='light';localStorage.setItem('apo-theme',t)}if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}
 </script>
 <link href="amor.css" rel="stylesheet">
-<link href="nosso-recursos.css" rel="stylesheet">
+<link href="nosso-recursos.css?v=2" rel="stylesheet">
 <link href="nosso-calendario.css" rel="stylesheet">
 </head>
 <body>
@@ -2168,7 +2168,7 @@ window.addEventListener('online',()=>{if(S.user&&S.cloudPending)syncCloudNow()})
   });
 })();
 </script>
-<script src="nosso-recursos.js" defer></script>
+<script src="nosso-recursos.js?v=2" defer></script>
 <script src="nosso-calendario.js" defer></script>
 </body>
 </html>
