@@ -112,3 +112,16 @@
 #coupleCalendar .cc-delete-event{cursor:pointer}
 #coupleCalendar [data-cal-day]:focus-visible{outline:2px solid var(--jade,#548d7c);outline-offset:1px}
 @media(min-width:760px){#coupleCalendar>.cc-calendar-panel{grid-template-columns:minmax(0,1.5fr) minmax(180px,1fr);column-gap:14px}#coupleCalendar .cc-head,#coupleCalendar .cc-week,#coupleCalendar .cc-grid:not(.cc-week){grid-column:1}#coupleCalendar .cc-events{grid-column:2;grid-row:1 / span 3;border-left:1px solid var(--line);padding-left:12px;margin-top:0}}
+
+/* Ajustes finais: o painel recolhido deve realmente desaparecer e a capa não deve dominar o calendário */
+#coupleCalendar>.cc-calendar-panel[hidden]{display:none!important}
+#coupleCalendar>.cc-toggle-calendar{height:clamp(112px,16vw,160px)!important;min-height:112px!important;max-height:160px!important;background-image:linear-gradient(0deg,rgba(20,28,25,.58),rgba(20,28,25,.08))!important;background-color:#477b70!important;align-items:center!important;justify-content:center!important;text-align:center!important;border-radius:10px!important;padding:14px!important}
+#coupleCalendar>.cc-toggle-calendar span{display:none!important}
+#coupleCalendar>.cc-calendar-panel[hidden]{margin:0!important;padding:0!important}
+#coupleCalendar .cc-day-label{pointer-events:none}
+#coupleCalendar .cc-month-event{cursor:default!important;display:grid!important;grid-template-columns:minmax(0,1fr) 30px!important;align-items:center!important;gap:8px!important}
+#coupleCalendar .cc-month-event-info{min-width:0;display:grid;gap:3px}
+#coupleCalendar .cc-month-event-info b{overflow-wrap:anywhere}
+#coupleCalendar .cc-delete-event{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font-size:1.1rem}
+#coupleCalendar .cc-delete-event:hover{background:color-mix(in srgb,#b44 12%,transparent);border-color:#b44}
+@media(min-width:760px){#coupleCalendar>.cc-calendar-panel:not([hidden]){grid-template-columns:minmax(0,1.5fr) minmax(180px,1fr)}}
