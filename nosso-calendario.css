@@ -88,3 +88,13 @@
 .cc-delete-event{font-weight:700;line-height:1}
 @keyframes ccPanelIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.cc-calendar-panel{animation:none}}
+
+/* Ajusta o botão do calendário: foto de lembrança em vez de um bloco verde */
+#coupleCalendar{display:block!important;min-width:0!important}
+#coupleCalendar>.cc-toggle-calendar{display:flex!important;position:relative!important;isolation:isolate;align-items:flex-end!important;justify-content:flex-start!important;text-align:left!important;width:100%!important;min-height:132px!important;height:132px!important;padding:16px 18px!important;overflow:hidden!important;border:1px solid var(--line)!important;border-radius:12px!important;color:#fff!important;font:600 1rem/1.3 inherit!important;letter-spacing:.01em!important;background-image:linear-gradient(0deg,rgba(14,24,21,.78),rgba(14,24,21,.06) 80%),url("https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1000&q=75")!important;background-size:cover!important;background-position:center 45%!important;box-shadow:0 5px 18px rgba(30,20,25,.12)!important}
+#coupleCalendar>.cc-toggle-calendar span{font-size:1.2rem!important}
+#coupleCalendar>.cc-toggle-calendar:hover{filter:brightness(1.07)!important}
+#coupleCalendar>.cc-calendar-panel{margin-top:12px!important}
+#coupleCalendar .cc-head h4{font-variant-numeric:tabular-nums}
+@media(min-width:700px){#coupleCalendar>.cc-toggle-calendar{min-height:150px!important;height:150px!important}}
+@media(max-width:560px){#coupleCalendar>.cc-toggle-calendar{min-height:110px!important;height:110px!important}}
