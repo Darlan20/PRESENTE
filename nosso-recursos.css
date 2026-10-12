@@ -56,3 +56,23 @@
  #coupleExtras .ex-grid>.ex-card:nth-child(2){order:3}
  #coupleExtras .ex-grid>.ex-card:nth-child(3){order:4}
 }
+
+/* Mobile: perguntas imediatamente após a linha do tempo, sem faixa vazia */
+@media(max-width:760px){
+ #coupleExtras .ex-grid{
+   display:grid!important;
+   grid-template-columns:minmax(0,1fr)!important;
+   grid-template-areas:"timeline" "questions" "letters" "dates"!important;
+   grid-template-rows:repeat(4,min-content)!important;
+   grid-auto-rows:min-content!important;
+   align-content:start!important;
+   align-items:start!important;
+   gap:12px!important;
+   row-gap:12px!important;
+ }
+ #coupleExtras .ex-grid>.ex-card:nth-child(1){grid-area:timeline!important;order:initial!important}
+ #coupleExtras .ex-grid>.ex-card:nth-child(4){grid-area:questions!important;order:initial!important}
+ #coupleExtras .ex-grid>.ex-card:nth-child(2){grid-area:letters!important;order:initial!important}
+ #coupleExtras .ex-grid>.ex-card:nth-child(3){grid-area:dates!important;order:initial!important}
+ #coupleExtras .ex-grid>.ex-card{height:auto!important;min-height:0!important;align-self:start!important}
+}
