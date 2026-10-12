@@ -75,3 +75,16 @@
 .cc-delete-event{display:inline-flex;align-items:center;justify-content:center;flex:none;width:30px;height:30px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font-size:1.15rem;cursor:pointer}
 .cc-delete-event:hover{background:#b94b4b18;border-color:#b94b4b;color:#b94b4b}
 .cc-head h4{font-variant-numeric:tabular-nums;text-transform:none}
+
+/* Calendário recolhido por padrão, aberto sob demanda */
+.cc-toggle-calendar{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:42px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--jade,#548d7c);color:#fff;font:600 .9rem inherit;cursor:pointer}
+.cc-toggle-calendar span{font-size:1.15rem;line-height:1}
+.cc-toggle-calendar:hover{filter:brightness(1.04)}
+.cc-calendar-panel{margin-top:12px;animation:ccPanelIn .18s ease-out}
+.cc-calendar-panel[hidden]{display:none!important}
+.cc-calendar-panel .cc-events{margin-bottom:4px}
+.cc-month-event{flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;cursor:default!important}
+.cc-month-event-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.cc-delete-event{font-weight:700;line-height:1}
+@keyframes ccPanelIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.cc-calendar-panel{animation:none}}
