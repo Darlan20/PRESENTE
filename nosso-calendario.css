@@ -24,3 +24,23 @@
  .cc-day-label{font-size:8px}
  .cc-events{grid-template-columns:1fr 1fr}
 }
+
+/* Modal central para detalhes de uma data, com fundo desfocado */
+.cc-date-dialog{
+ width:min(440px,calc(100vw - 32px));max-width:calc(100vw - 32px);
+ max-height:min(78vh,620px);overflow:auto;padding:0;
+ border:1px solid var(--line);border-radius:18px;
+ background:var(--surface,#f1ddd3);color:var(--ink,#30272e);
+ box-shadow:0 24px 90px #0004;
+ position:fixed;inset:0;margin:auto;
+}
+.cc-date-dialog::backdrop{background:rgba(13,22,19,.58);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.cc-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.cc-dialog-head small{font-size:.65rem;letter-spacing:.14em;font-weight:700;color:var(--jade,#548d7c)}
+.cc-dialog-head h3{margin:5px 0 0;font:600 1.2rem/1.4 "Zen Old Mincho",Georgia,serif;text-transform:capitalize}
+.cc-dialog-head button{width:34px;height:34px;flex:none;border:1px solid var(--line);border-radius:50%;background:transparent;color:inherit;font-size:1.35rem;cursor:pointer}
+.cc-dialog-body{padding:12px 20px 20px}
+.cc-dialog-event{padding:12px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.cc-dialog-event:last-child{border-bottom:0}
+.cc-dialog-event b{font:600 1rem/1.45 "Zen Old Mincho",Georgia,serif}
+.cc-dialog-event p{margin:7px 0 0;font-size:.9rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
