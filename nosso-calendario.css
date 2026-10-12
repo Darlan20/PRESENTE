@@ -44,3 +44,26 @@
 .cc-dialog-event:last-child{border-bottom:0}
 .cc-dialog-event b{font:600 1rem/1.45 "Zen Old Mincho",Georgia,serif}
 .cc-dialog-event p{margin:7px 0 0;font-size:.9rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* Alinhamento consistente dos quatro cartões */
+@media(min-width:761px){
+ #coupleExtras .ex-grid{display:grid!important;columns:initial!important;column-count:initial!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;grid-template-areas:"timeline dates" "letters questions"!important;grid-auto-flow:row!important;align-items:start!important;align-content:start!important;gap:14px!important}
+ #coupleExtras .ex-grid>.ex-card{display:block!important;width:auto!important;break-inside:initial!important;vertical-align:initial!important;margin:0!important;height:auto!important;min-height:0!important;align-self:start!important;box-sizing:border-box!important}
+ #coupleExtras .ex-grid>.ex-card:nth-child(1){grid-area:timeline!important}
+ #coupleExtras .ex-grid>.ex-card:nth-child(2){grid-area:questions!important}
+ #coupleExtras .ex-grid>.ex-card:nth-child(3){grid-area:letters!important}
+ #coupleExtras .ex-grid>.ex-card:nth-child(4){grid-area:dates!important}
+}
+@media(max-width:760px){#coupleExtras .ex-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px!important}}
+.cc-date-dialog{width:min(420px,calc(100vw - 32px));max-width:calc(100vw - 32px);padding:0;max-height:85vh;overflow:auto;border:1px solid var(--line);border-radius:18px;background:var(--surface,#f1ddd3);color:var(--ink,#30272e);box-shadow:0 24px 90px #0004;position:fixed;inset:0;margin:auto}
+.cc-date-dialog::backdrop{background:rgba(18,22,20,.58);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.cc-create-form{margin:0!important;padding:0!important;display:block!important}
+.cc-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.cc-dialog-head small{font-size:.65rem;letter-spacing:.14em;font-weight:700;color:var(--jade,#548d7c)}
+.cc-dialog-head h3{margin:5px 0 0;font:600 1.2rem/1.4 "Zen Old Mincho",Georgia,serif;text-transform:capitalize}
+.cc-dialog-head button{width:34px;height:34px;flex:none;border:1px solid var(--line);border-radius:50%;background:transparent;color:inherit;font-size:1.35rem;cursor:pointer}
+.cc-dialog-body{display:grid;gap:10px;padding:18px 20px 20px}
+.cc-dialog-body p{margin:0 0 3px;color:var(--muted);font-size:.9rem}
+.cc-dialog-body label{font-size:.82rem;font-weight:600}
+.cc-dialog-body input{width:100%;min-height:42px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--field,var(--surface));color:var(--ink);font:inherit}
+.cc-dialog-body .ex-btn{width:100%;margin-top:4px}
