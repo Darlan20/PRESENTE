@@ -2,6 +2,7 @@
 const $=(s,r=document)=>r.querySelector(s);
 const key=()=>"nosso-cantinho-extras-v1:"+((($("#profileAccountEmail")?.textContent||"").trim().toLowerCase().includes("@"))?$("#profileAccountEmail").textContent.trim().toLowerCase():"local");
 const read=()=>{try{return JSON.parse(localStorage.getItem(key())||"{}")}catch{return{}}};
+const persist=d=>{try{localStorage.setItem(key(),JSON.stringify(d));window.NossoExtrasCloud?.save(d);window.dispatchEvent(new CustomEvent("nosso-cantinho:extras-updated",{detail:d}));return true}catch{alert("Não foi possível salvar este evento neste navegador.");return false}};
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fmt=s=>s?new Intl.DateTimeFormat("pt-BR",{day:"numeric",month:"2-digit",year:"numeric"}).format(new Date(s+"T12:00:00")):"";
 let shown=new Date(),selectedDate="",calendarOpen=false;
@@ -32,8 +33,8 @@ function draw(){
 }
 document.addEventListener("click",e=>{
  const del=e.target.closest("[data-delete-event]");
- if(del){if(!confirm("Apagar este evento?"))return;const id=del.dataset.deleteEvent;const data=read();const list=Array.isArray(data.dates)?data.dates:[];let removed=false;data.dates=list.filter(x=>{const xid=x.id||x.date+"|"+x.title;if(!removed&&xid===id){removed=true;return false}return true});try{localStorage.setItem(key(),JSON.stringify(data))}catch{alert("Não foi possível apagar o evento neste navegador.");return}draw();return}
+ if(del){if(!confirm("Apagar este evento?"))return;const id=del.dataset.deleteEvent;const data=read();const list=Array.isArray(data.dates)?data.dates:[];let removed=false;data.dates=list.filter(x=>{const xid=x.id||x.date+"|"+x.title;if(!removed&&xid===id){removed=true;return false}return true});if(!persist(data))return;draw();return}
  const toggle=e.target.closest("[data-calendar-toggle]");if(toggle){calendarOpen=!calendarOpen;draw();return}const b=e.target.closest("[data-cal],[data-cal-day]");if(!b)return;if(b.dataset.cal){shown.setMonth(shown.getMonth()+(b.dataset.cal==="next"?1:-1));draw();return}if(b.dataset.calDay){selectedDate=b.dataset.calDay;const dt=new Date(selectedDate+"T12:00:00");shown=new Date(dt.getFullYear(),dt.getMonth(),1);calendarOpen=true;draw();selectCalendarDate(selectedDate)}});
-function boot(){draw();const app=$("#app");if(app)new MutationObserver(()=>{if(!$("#coupleCalendar"))draw()}).observe(app,{childList:true,subtree:true});addEventListener("storage",draw)}
+function boot(){draw();const app=$("#app");if(app)new MutationObserver(()=>{if(!$("#coupleCalendar"))draw()}).observe(app,{childList:true,subtree:true});addEventListener("storage",draw);addEventListener("nosso-cantinho:extras-updated",draw)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();

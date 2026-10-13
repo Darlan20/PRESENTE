@@ -377,3 +377,57 @@ create policy "Users delete their own files"
       )
     )
   );
+
+-- Recursos da linha do tempo, cartas e datas especiais: sincronizados entre dispositivos.
+create table if not exists public.apo_recursos_pessoais (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  data jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.apo_recursos_compartilhados (
+  couple_id uuid primary key references public.apo_casais (id) on delete cascade,
+  data jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.apo_recursos_pessoais enable row level security;
+alter table public.apo_recursos_compartilhados enable row level security;
+
+drop policy if exists "Users manage their own extras" on public.apo_recursos_pessoais;
+create policy "Users manage their own extras"
+  on public.apo_recursos_pessoais
+  for all
+  to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop policy if exists "Couple members manage shared extras" on public.apo_recursos_compartilhados;
+create policy "Couple members manage shared extras"
+  on public.apo_recursos_compartilhados
+  for all
+  to authenticated
+  using (public.apo_e_membro_casal(couple_id))
+  with check (public.apo_e_membro_casal(couple_id));
+
+grant select, insert, update, delete on public.apo_recursos_pessoais to authenticated;
+grant select, insert, update, delete on public.apo_recursos_compartilhados to authenticated;
+
+do $$
+declare
+  v_table text;
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime') then
+    foreach v_table in array array['apo_recursos_pessoais', 'apo_recursos_compartilhados'] loop
+      if not exists (
+        select 1 from pg_publication_tables
+        where pubname = 'supabase_realtime'
+          and schemaname = 'public'
+          and tablename = v_table
+      ) then
+        execute format('alter publication supabase_realtime add table public.%I', v_table);
+      end if;
+    end loop;
+  end if;
+end;
+$$;

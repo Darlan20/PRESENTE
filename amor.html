@@ -309,6 +309,7 @@ if(window.supabase&&cloudConfig.url&&cloudConfig.anonKey&&!/SEU-PROJETO|COLE_A_C
     cloud=window.supabase.createClient(cloudConfig.url,cloudConfig.anonKey);
   }catch(error){cloudConfigError=error.message||'Configuração Supabase inválida.'}
 }
+window.__APO_CLOUD_CLIENT=cloud;
 let idb=null;
 const mem={drawers:new Map(),items:new Map(),blobs:new Map(),meta:new Map()};
 let activeScope='local',cloudHydrating=false;
@@ -2168,7 +2169,8 @@ window.addEventListener('online',()=>{if(S.user&&S.cloudPending)syncCloudNow()})
   });
 })();
 </script>
-<script src="nosso-recursos.js?v=3" defer></script>
-<script src="nosso-calendario.js?v=9" defer></script>
+<script src="nosso-cloud-extras.js?v=1" defer></script>
+<script src="nosso-recursos.js?v=4" defer></script>
+<script src="nosso-calendario.js?v=10" defer></script>
 </body>
 </html>

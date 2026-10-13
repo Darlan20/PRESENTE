@@ -132,7 +132,7 @@ O conteúdo pessoal continua separado. Apenas o espaço compartilhado fica acess
 
 ### Recursos extras de lembranças
 
-A linha do tempo, as cartas, as datas especiais e os nomes personalizados ficam no armazenamento local do navegador, separados pelo e-mail da conta quando o perfil está autenticado. Esses dados **não são sincronizados para a nuvem** nem compartilhados automaticamente com a outra pessoa. Faça backup antes de limpar os dados do navegador. A data de abertura de uma carta é apenas uma organização visual; não use esse recurso para guardar informações confidenciais.
+A linha do tempo, as cartas, as datas especiais e os nomes personalizados usam cache local e podem ser sincronizados pelo Supabase. Com login, os recursos pessoais sincronizam entre dispositivos; quando as contas estão conectadas como casal, os recursos passam para um espaço compartilhado. Os dados locais existentes são mesclados ao primeiro carregamento da nuvem. Para habilitar a função, execute novamente todo o `supabase-schema.sql` no SQL Editor do Supabase. Se o schema ainda não tiver as tabelas novas, os recursos continuam disponíveis localmente. A data de abertura de uma carta é apenas uma organização visual; não use esse recurso para guardar informações confidenciais.
 
 ## 📁 Estrutura principal
 
@@ -148,6 +148,9 @@ A linha do tempo, as cartas, as datas especiais e os nomes personalizados ficam 
 | `vercel.json` | Configuração de rotas e cabeçalhos |
 | `favicon.svg` | Ícone do site |
 | `nosso-recursos.js` | Linha do tempo, cartas, datas e personalização |
+| `nosso-cloud-extras.js` | Sincronização pessoal e compartilhada dos recursos |
+| `nosso-calendario.js` | Calendário de datas especiais |
+| `nosso-calendario.css` | Estilos do calendário |
 | `nosso-recursos.css` | Estilos responsivos dos novos recursos |
 | `manifest.webmanifest` | Metadados de instalação PWA |
 | `service-worker.js` | Cache limitado do shell estático offline |
