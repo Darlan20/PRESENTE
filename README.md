@@ -170,3 +170,8 @@ Para alterações de frontend, mantenha o projeto compatível com hospedagem est
 ---
 
 Feito com carinho para guardar pequenos momentos. 💚
+
+
+## Módulo SupportFlow
+
+O repositório também inclui uma cópia independente do sistema de suporte **SupportFlow**, com frontend React/Vite e backend Spring Boot, sem substituir a aplicação Nosso Cantinho da raiz. Consulte [`supportflow/README.md`](supportflow/README.md) para executar e implantar o módulo separadamente. O Blueprint do backend fica em [`render.yaml`](render.yaml) e usa variáveis de ambiente para os segredos.

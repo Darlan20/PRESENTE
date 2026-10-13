@@ -1,0 +1,21 @@
+<svg width="304" height="72" viewBox="0 0 304 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="compactBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0EA5E9" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+    <linearGradient id="compactGreen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#86EFAC" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+  </defs>
+  <text x="4" y="46" font-family="Segoe UI, Arial, sans-serif" font-size="38" font-weight="700" fill="url(#compactBlue)">Support</text>
+  <text x="151" y="46" font-family="Segoe UI, Arial, sans-serif" font-size="38" font-weight="700" fill="url(#compactGreen)">Flow</text>
+  <g transform="translate(242,18)">
+    <rect width="24" height="24" rx="8" fill="#14B8A6" fill-opacity="0.22" stroke="#2DD4BF"/>
+    <path d="M7 12L10 15L17 9" stroke="#5EEAD4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <path d="M62 58H220" stroke="url(#compactBlue)" stroke-width="3" stroke-linecap="round" />
+  <path d="M220 58L214 54" stroke="url(#compactBlue)" stroke-width="3" stroke-linecap="round" />
+  <path d="M220 58L214 62" stroke="url(#compactBlue)" stroke-width="3" stroke-linecap="round" />
+</svg>

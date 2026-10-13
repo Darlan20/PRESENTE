@@ -1,0 +1,23 @@
+<svg width="560" height="120" viewBox="0 0 560 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="supportBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0EA5E9" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+    <linearGradient id="flowGreen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#86EFAC" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+  </defs>
+  <g>
+    <text x="12" y="77" font-family="Segoe UI, Arial, sans-serif" font-size="68" font-weight="700" fill="url(#supportBlue)">Support</text>
+    <text x="272" y="77" font-family="Segoe UI, Arial, sans-serif" font-size="68" font-weight="700" fill="url(#flowGreen)">Flow</text>
+  </g>
+  <g transform="translate(452,34)">
+    <rect width="40" height="40" rx="12" fill="#14B8A6" fill-opacity="0.22" stroke="#2DD4BF" />
+    <path d="M12 20L18 26L29 14" stroke="#5EEAD4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <path d="M108 97H420" stroke="url(#supportBlue)" stroke-width="4.5" stroke-linecap="round" />
+  <path d="M420 97L410 90" stroke="url(#supportBlue)" stroke-width="4.5" stroke-linecap="round" />
+  <path d="M420 97L410 104" stroke="url(#supportBlue)" stroke-width="4.5" stroke-linecap="round" />
+</svg>

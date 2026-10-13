@@ -1,0 +1,47 @@
+# Blueprint do módulo SupportFlow. Não armazene segredos neste arquivo.
+services:
+  - type: web
+    name: presente-supportflow-backend
+    env: docker
+    region: sao-paulo
+    dockerfilePath: ./supportflow/Backend/Dockerfile
+    dockerContext: ./supportflow/Backend
+    healthCheckPath: /api/auth/teste
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: presente-supportflow-postgres
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: presente-supportflow-postgres
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: presente-supportflow-postgres
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        value: noreply@supportflow.com
+
+databases:
+  - name: presente-supportflow-postgres
+    databaseName: supportflow
+    user: supportflow_user
+    region: sao-paulo
+    plan: basic-256mb
